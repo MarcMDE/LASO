@@ -26,8 +26,8 @@ from direct.interval.FunctionInterval import Func, Wait
 from direct.task.Task import Task
 import sys
 from recognition import *
-
 import numpy as np
+import speechRecognition as sr
 import cv2
 
 # Some constants for the program
@@ -36,6 +36,7 @@ MAX_SPEED = 5      # Max speed in ft/sec
 MAX_SPEED_SQ = MAX_SPEED ** 2  # Squared to make it easier to use lengthSquared
 # Instead of length
 
+vr = sr.VoiceRecognition()
 
 class BallInMazeDemo(ShowBase):
 
@@ -233,7 +234,8 @@ class BallInMazeDemo(ShowBase):
 
         self.digitizer = Digitizer()
 
-        #self.recon_voice = ReconVoice()
+
+        accio, coord = vr.recon_Voice()
 
         # Finally, we call start for more initialization
         self.start()

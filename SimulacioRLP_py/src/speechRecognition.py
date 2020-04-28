@@ -2,7 +2,7 @@ import speech_recognition as sr
 
 class VoiceRecognition:
 
-    def recon_Voice():
+    def recon_Voice(self):
         r = sr.Recognizer()
         coord=[]
         correcto1=1
@@ -74,8 +74,6 @@ class VoiceRecognition:
 
                     else:
                          print("No hay comando asociado a esta palabra")
-
-
 
 
                 except sr.UnknownValueError:

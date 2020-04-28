@@ -48,6 +48,8 @@ class Digitizer:
                               flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
         cv2.imshow("matches", img3)
 
+
+
 # Testing
 if __name__ == "__main__":
     d = Digitizer()
