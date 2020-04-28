@@ -401,6 +401,7 @@ class BallInMazeDemo(ShowBase):
             self.ballV *= MAX_SPEED
         # Update the position based on the velocity
         self.ballRoot.setPos(self.ballRoot.getPos() + (self.ballV * dt))
+        #print(self.ballRoot.getPos())
 
         # This block of code rotates the ball. It uses something called a quaternion
         # to rotate the ball around an arbitrary axis. That axis perpendicular to
