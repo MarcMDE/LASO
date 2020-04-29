@@ -26,6 +26,7 @@ from direct.interval.FunctionInterval import Func, Wait
 from direct.task.Task import Task
 import sys
 from recognition import *
+from pid import *
 
 import numpy as np
 import cv2
@@ -215,7 +216,7 @@ class BallInMazeDemo(ShowBase):
         self.ball.setMaterial(m, 1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 6
+        self.mazeSpeed = 20
         # Set maze max rotation
         self.mazeMaxRotation = 20
 
@@ -233,6 +234,8 @@ class BallInMazeDemo(ShowBase):
 
         self.digitizer = Digitizer()
 
+        
+
         #self.recon_voice = ReconVoice()
 
         # Finally, we call start for more initialization
@@ -244,6 +247,7 @@ class BallInMazeDemo(ShowBase):
         startPos = self.maze.find("**/start").getPos()
         # Set the ball in the starting position
         self.ballRoot.setPos(startPos)
+        self.pid = pid(startPos[0], startPos[1])
         self.ballV = LVector3(0, 0, 0)         # Initial velocity is 0
         self.accelV = LVector3(0, 0, 0)        # Initial acceleration is 0
 
@@ -323,6 +327,8 @@ class BallInMazeDemo(ShowBase):
     def rollTask(self, task):
         # Standard technique for finding the amount of time since the last
         # frame
+        #print("\r",self.maze.getR(), self.maze.getP(), self.ballRoot.getPos(), end="")
+
         dt = globalClock.getDt()
 
         # If dt is large, then there has been a # hiccup that could cause the ball
@@ -374,9 +380,8 @@ class BallInMazeDemo(ShowBase):
             self.maze.setR(mpos.getX() * 10)
         """
 
-        p_rotation = 0
-        r_rotation = 0
-
+        p_rotation, r_rotation = self.pid.getPR(self.ballRoot.getPos()[0], self.ballRoot.getPos()[1], 4, 0, self.maze.getP(), self.maze.getR(), dt)
+        
         if key_down(KeyboardButton.up()):
             p_rotation = -1
         elif key_down(KeyboardButton.down()):
@@ -386,6 +391,8 @@ class BallInMazeDemo(ShowBase):
             r_rotation = -1
         elif key_down(KeyboardButton.right()):
             r_rotation = 1
+
+        
 
         self.rotateMaze(p_rotation, r_rotation)
 
