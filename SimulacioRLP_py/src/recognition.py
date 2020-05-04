@@ -39,6 +39,9 @@ class Digitizer:
     def _digitalize_source(self):
         pass
 
+    def _segmentate_dst(self):
+
+
 
     def _digitalize(self, img):
         h, w, c = img.shape
