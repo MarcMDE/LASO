@@ -7,6 +7,8 @@ import time
 
 class aStar:
 
+	
+
 	def distance(self, punt0, puntf):
 		x0, y0 = punt0
 		xf, yf = puntf
@@ -18,13 +20,13 @@ class aStar:
 		ret = []
 		
 		if(lab[x+1][y-1] == 0 and exp[x+1][y-1] == -1):
-			ret.append([(x+1, y-1), dist + 1, distance((x+1, y-1), end_p)])	
-		if(x+i >= 0 and x+1 < width and lab[x+i][y+1] == 0 and exp[x+1][y+1] == -1):
-			ret.append([(x+1, y+1), dist + 1, distance((x+1, y+1), end_p)])
+			ret.append([(x+1, y-1), dist + 1, self.distance((x+1, y-1), end_p)])	
+		if(x+1 >= 0 and x+1 < width and lab[x+1][y+1] == 0 and exp[x+1][y+1] == -1):
+			ret.append([(x+1, y+1), dist + 1, self.distance((x+1, y+1), end_p)])
 		if(lab[x-1][y] == 0 and exp[x-1][y] == -1):
-			ret.append([(x-1, y), dist + 1, distance((x-1, y), end_p)])
+			ret.append([(x-1, y), dist + 1, self.distance((x-1, y), end_p)])
 		if(lab[x+1][y] == 0 and exp[x+1][y] == -1):
-			ret.append([(x+1, y), dist + 1, distance((x+1, y), end_p)])
+			ret.append([(x+1, y), dist + 1, self.distance((x+1, y), end_p)])
 
 		return ret
 
@@ -46,6 +48,14 @@ class aStar:
 	def a_star(self, lab, radi, mseg, x0, y0, xf, yf): #Assumeix lliure = 0, paret = 1, forat = 2
 		
 		# ------- Inflar parets i forats per tenir en compte radi i marge de seguretat
+
+		#print(lab)
+
+		lab[0, :] = 1
+		lab[:, 0] = 1
+		lab[-1, :] = 1
+		lab[:, -1] = 1
+
 		width = lab.shape[0]
 		height = lab.shape[1]
 
@@ -110,7 +120,7 @@ class aStar:
 			#print(expand_p[punt_actual[0][0] - 3 : punt_actual[0][0] + 4, punt_actual[0][1] - 3 : punt_actual[0][1] + 4])
 			#cv2.imshow("", (expand_p != -1).astype(np.uint8)*255)
 			#cv2.waitKey(1)
-			insert_ordered(point_list, neighs)
+			self.insert_ordered(point_list, neighs)
 			#print(point_list)
 			#input()
 
