@@ -47,14 +47,15 @@ class Digitizer:
                                   cv2.THRESH_BINARY, 51, 5)
         cv2.imshow("bin,", b)
 
-        endPos = np.argmax(self.source_img_g)
+        endPos = np.argmax(self.source_img[:, :, 1].astype('int16') -
+                             (self.source_img[:,:,0].astype('int16') + self.source_img[:,:,2].astype('int16'))*0.4)
         endPosY = int(endPos / PI_CAMERA_RES)
         endPosX = endPos % PI_CAMERA_RES
         startPos = np.argmax(self.source_img[:, :, 2].astype('int16') -
                              (self.source_img[:,:,0].astype('int16') + self.source_img[:,:,1].astype('int16'))*0.4)
         startPosY = int(startPos / PI_CAMERA_RES)
         startPosX = startPos % PI_CAMERA_RES
-        i = cv2.circle(cv2.circle(self.source_img, (startPosX, startPosY), 8, (255,0,0)), (endPosX, endPosY), 8, (0, 255, 0))
+        i = cv2.circle(cv2.circle(self.source_img, (startPosX, startPosY), 8, (0,0,255)), (endPosX, endPosY), 8, (0, 255, 0))
         cv2.imshow("positions", i)
 
         if b[startPosY + POS_DIST_CHECK, startPosX + POS_DIST_CHECK] == 0:
@@ -85,7 +86,7 @@ class Digitizer:
         cv2.imshow("frame image", img_kp)
 
         matches = self.flann.knnMatch(des, self.s_des, k=2)
-        ratio_thresh = 0.3
+        ratio_thresh = 0.5
         good_matches = []
         for m, n in matches:
             if m.distance < ratio_thresh * n.distance:
@@ -140,7 +141,7 @@ class Digitizer:
 # Testing
 if __name__ == "__main__":
     d = Digitizer()
-    d.set_src_img(cv2.imread('s.jpg', 1))
+    d.set_src_img(cv2.imread('sg.jpg', 1))
     d._digitalize_source()
-    #d.get_ball_pos(cv2.imread('t5.jpg', 0))
+    d.get_ball_pos(cv2.imread('tg4.jpg', 0))
     cv2.waitKey()
