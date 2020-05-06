@@ -138,6 +138,7 @@ class Digitizer:
         check_result = cv2.addWeighted(self.source_img_g, 0.5, n_img, 0.5, 1)
         cv2.imshow("show result", check_result)
 
+
 # Testing
 if __name__ == "__main__":
     d = Digitizer()
