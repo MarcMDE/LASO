@@ -44,7 +44,13 @@ from direct.actor import Actor
 from random import *
 
 from constants import *
+
 import numpy as np
+import threading as th
+import speechRecognition as sr
+import _thread
+import threading
+vr = sr.VoiceRecognition(0)
 import cv2
 
 # Some constants for the program
@@ -64,8 +70,31 @@ def addTitle(text):
                         parent=base.a2dBottomRight, align=TextNode.ARight,
                         pos=(-0.1, 0.09), shadow=(0, 0, 0, 1))
 
-class BallInMazeDemo(ShowBase):
+timerStatus = 'stop'
 
+
+def listenVoice():
+    while 1:
+        if vr.restart:
+            vr.restart = 0
+            sys.exit()
+
+        accio, coord = vr.recon_Voice()
+
+        if accio == 'a1':
+            print('Empezando partida')
+
+        if accio == 'a2':
+            print('parando')
+        if accio == 'a3':
+            print('Moviendo tablero a las coordenadas dichas')
+
+        if accio == 'a4':
+            print('Reiniciando...')
+
+
+
+class BallInMazeDemo(ShowBase):
     def __init__(self):
         # Initialize the ShowBase class from which we inherit, which will
         # create a window and set up everything we need for rendering into it.
@@ -316,14 +345,15 @@ class BallInMazeDemo(ShowBase):
 
         self.digitizer = Digitizer()
 
+
         self.aStar = aStar()
 
-        
 
-        #self.recon_voice = ReconVoice()
 
         # Finally, we call start for more initialization
         self.start()
+
+
 
     def start(self):
         # The maze model also has a locator in it for where to start the ball
@@ -479,6 +509,9 @@ class BallInMazeDemo(ShowBase):
             elif name == "ground_collide":
                 self.groundCollideHandler(entry)
             elif name == "loseTrigger":
+                vr.restart=1
+                x = threading.Thread(target=listenVoice)
+                x.start()
                 self.loseGame(entry)
 
         # Read the mouse position and tilt the maze accordingly
@@ -552,6 +585,8 @@ class BallInMazeDemo(ShowBase):
         toPos = entry.getInteriorPoint(render)
         taskMgr.remove('rollTask')  # Stop the maze task
 
+
+
         # Move the ball into the hole over a short sequence of time. Then wait a
         # second and call start to reset the game
         Sequence(
@@ -582,4 +617,12 @@ class BallInMazeDemo(ShowBase):
 
 # Finally, create an instance of our class and start 3d rendering
 demo = BallInMazeDemo()
+
+try:
+    x = threading.Thread(target=listenVoice)
+    x.start()
+except:
+    print ("Error: unable to start thread")
+
+
 demo.run()
