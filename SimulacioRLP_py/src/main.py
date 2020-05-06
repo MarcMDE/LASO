@@ -263,16 +263,16 @@ class BallInMazeDemo(ShowBase):
 
         self.light = render.attachNewNode(Spotlight("Spot"))
         self.light.node().setScene(render)
-        self.light.node().setShadowCaster(True, 1024, 1024)
+        #self.light.node().setShadowCaster(True, 1024, 1024)
         self.light.node().setAttenuation((1, 0, 1))
         self.light.node().showFrustum()
         self.light.node().getLens().setFov(40)
         self.light.node().getLens().setNearFar(5, 300)
         self.light.node().setColor((100000, 100000, 100000, 1))
         self.light.setPos(0, 0, 200)
-        self.light.setHpr(LVector3(0, -70, 0))
+        self.light.setHpr(LVector3(0, -90, 0))
         render.setLight(self.light)
-        render.setShaderAuto()
+        #render.setShaderAuto()
 
 
         #self.ballRoot.setLight(render.attachNewNode(ambientLight))
@@ -281,8 +281,8 @@ class BallInMazeDemo(ShowBase):
         # Maze 2 light
         #self.maze2.setLight(self.light)
         #self.maze2.setLight(self.ambientL)
-        #self.maze2.hide()
-        self.maze.hide()
+        self.maze2.hide()
+        #self.maze.hide()
 
         # This section deals with adding a specular highlight to the ball to make
         # it look shiny.  Normally, this is specified in the .egg file.
