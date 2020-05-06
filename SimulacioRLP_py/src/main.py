@@ -26,6 +26,9 @@ from direct.interval.FunctionInterval import Func, Wait
 from direct.task.Task import Task
 import sys
 from recognition import *
+from pid import *
+from aStar import *
+import math
 
 import numpy as np
 import cv2
@@ -35,7 +38,6 @@ ACCEL = 70         # Acceleration in ft/sec/sec
 MAX_SPEED = 5      # Max speed in ft/sec
 MAX_SPEED_SQ = MAX_SPEED ** 2  # Squared to make it easier to use lengthSquared
 # Instead of length
-
 
 class BallInMazeDemo(ShowBase):
 
@@ -215,9 +217,13 @@ class BallInMazeDemo(ShowBase):
         self.ball.setMaterial(m, 1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 6
+        self.mazeSpeed = 50
         # Set maze max rotation
         self.mazeMaxRotation = 20
+        # Distància minima per passar al següent punt
+        self.minDist = 1
+        # Pas per saltar punts del path
+        self.pas = 1
 
         base.setBackgroundColor(1, 0, 1)
 
@@ -233,6 +239,10 @@ class BallInMazeDemo(ShowBase):
 
         self.digitizer = Digitizer()
 
+        self.aStar = aStar()
+
+        
+
         #self.recon_voice = ReconVoice()
 
         # Finally, we call start for more initialization
@@ -244,6 +254,14 @@ class BallInMazeDemo(ShowBase):
         startPos = self.maze.find("**/start").getPos()
         # Set the ball in the starting position
         self.ballRoot.setPos(startPos)
+        self.pid = pid(startPos[0], startPos[1])
+
+        # INICIALITZAR A* AMB LABERINT HARDCODEJAT, S'HA DE CANVIAR
+
+        # ----------- self.path_matrix, self.path = self.aStar.a_star(laberint, 26, 10, 465, 448, 89, 461) -----------------
+
+        self.indexPuntActual = 0
+
         self.ballV = LVector3(0, 0, 0)         # Initial velocity is 0
         self.accelV = LVector3(0, 0, 0)        # Initial acceleration is 0
 
@@ -323,6 +341,8 @@ class BallInMazeDemo(ShowBase):
     def rollTask(self, task):
         # Standard technique for finding the amount of time since the last
         # frame
+        #print("\r",self.maze.getR(), self.maze.getP(), self.ballRoot.getPos(), end="")
+
         dt = globalClock.getDt()
 
         # If dt is large, then there has been a # hiccup that could cause the ball
@@ -374,9 +394,21 @@ class BallInMazeDemo(ShowBase):
             self.maze.setR(mpos.getX() * 10)
         """
 
-        p_rotation = 0
-        r_rotation = 0
+        # posFPixel = self.path[self.indexPuntActual]
 
+        xFinal = 4 #posFPixel[1]/np.shape(laberint)[0]*13 - 6.5
+        yFinal = -4 #-(posFPixel[0]/np.shape(laberint)[1]*13.5 - 6.8)
+
+        dist = math.sqrt((xFinal - self.ballRoot.getPos()[0])**2 + (yFinal - self.ballRoot.getPos()[1])**2)
+
+        """if(dist < self.minDist):
+            if(self.indexPuntActual + self.pas <= len(self.path) - 1):
+                self.indexPuntActual += self.pas
+            else:
+                self.indexPuntActual = len(self.path) - 1"""
+
+        p_rotation, r_rotation = self.pid.getPR(self.ballRoot.getPos()[0], self.ballRoot.getPos()[1], xFinal, yFinal, self.maze.getP(), self.maze.getR(), dt)
+        
         if key_down(KeyboardButton.up()):
             p_rotation = -1
         elif key_down(KeyboardButton.down()):
@@ -386,6 +418,8 @@ class BallInMazeDemo(ShowBase):
             r_rotation = -1
         elif key_down(KeyboardButton.right()):
             r_rotation = 1
+
+        
 
         self.rotateMaze(p_rotation, r_rotation)
 
@@ -401,6 +435,7 @@ class BallInMazeDemo(ShowBase):
             self.ballV *= MAX_SPEED
         # Update the position based on the velocity
         self.ballRoot.setPos(self.ballRoot.getPos() + (self.ballV * dt))
+        #print(self.ballRoot.getPos())
 
         # This block of code rotates the ball. It uses something called a quaternion
         # to rotate the ball around an arbitrary axis. That axis perpendicular to
