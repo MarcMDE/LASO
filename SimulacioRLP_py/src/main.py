@@ -9,7 +9,7 @@
 # on the collisions. All of this is put together to simulate a labyrinth-style
 # game
 
-from direct.showbase.ShowBase import ShowBase
+#from direct.showbase.ShowBase import ShowBase
 from panda3d.core import WindowProperties
 from panda3d.core import Texture
 from panda3d.core import KeyboardButton
@@ -59,17 +59,6 @@ MAX_SPEED = 5      # Max speed in ft/sec
 MAX_SPEED_SQ = MAX_SPEED ** 2  # Squared to make it easier to use lengthSquared
 # Instead of length
 
-def addInstructions(pos, msg):
-    return OnscreenText(text=msg, style=1, fg=(1, 1, 1, 1), scale=.05,
-                        shadow=(0, 0, 0, 1), parent=base.a2dTopLeft,
-                        pos=(0.08, -pos - 0.04), align=TextNode.ALeft)
-
-# Function to put title on the screen.
-def addTitle(text):
-    return OnscreenText(text=text, style=1, fg=(1, 1, 1, 1), scale=.07,
-                        parent=base.a2dBottomRight, align=TextNode.ARight,
-                        pos=(-0.1, 0.09), shadow=(0, 0, 0, 1))
-
 timerStatus = 'stop'
 
 
@@ -105,29 +94,11 @@ class BallInMazeDemo(ShowBase):
         base.win.requestProperties(winProps)
 
         if not base.win.getGsg().getSupportsBasicShaders():
-            self.t = addTitle(
-                "Shadow Demo: Video driver reports that shaders are not supported.")
+            print("Error: Video driver reports that depth textures are not supported.")
             return
         if not base.win.getGsg().getSupportsDepthTexture():
-            self.t = addTitle(
-                "Shadow Demo: Video driver reports that depth textures are not supported.")
+            print("Error: Video driver reports that depth textures are not supported.")
             return
-
-        # This code puts the standard title and instruction text on screen
-        """
-        self.title = \
-            OnscreenText(text="Rotate the maze using the arrow keys",
-                         parent=base.a2dBottomRight, align=TextNode.ARight,
-                         fg=(1, 1, 1, 1), pos=(-0.1, 0.1), scale=.08,
-                         shadow=(0, 0, 0, 0.5))
-        """
-        """
-        self.instructions = \
-            OnscreenText(text="Mouse pointer tilts the board",
-                         parent=base.a2dTopLeft, align=TextNode.ALeft,
-                         pos=(0.05, -0.08), fg=(1, 1, 1, 1), scale=.06,
-                         shadow=(0, 0, 0, 0.5))
-        """
 
         self.accept("escape", sys.exit)  # Escape quits
 
@@ -141,13 +112,15 @@ class BallInMazeDemo(ShowBase):
         #base.camLens.setNearFar(200, 600)
 
         # Load the maze and place it in the scene
-        self.maze = loader.loadModel("models/maze")
+        #self.maze = loader.loadModel("models/maze")
+        self.maze = loader.loadModel("models/lab4")
         self.maze.reparentTo(render)
 
         # Load custom maze
 
-        self.maze2 = loader.loadModel("models/lab2g")
-        self.maze2.reparentTo(render)
+        #self.maze2 = loader.loadModel("models/lab4")
+        #self.maze2.reparentTo(render)
+
 
         # Most times, you want collisions to be tested against invisible geometry
         # rather than every polygon. This is because testing against every polygon
@@ -168,7 +141,8 @@ class BallInMazeDemo(ShowBase):
         # NodePath's find command
 
         # Find the collision node named wall_collide
-        self.walls = self.maze.find("**/wall_collide")
+        #self.walls = self.maze.find("**/wall_collide")
+        self.walls = self.maze.find("**/wall_col")
 
         # Collision objects are sorted using BitMasks. BitMasks are ordinary numbers
         # with extra methods for working with them as binary bits. Every collision
@@ -191,8 +165,10 @@ class BallInMazeDemo(ShowBase):
         # collisions
 
         self.loseTriggers = []
-        for i in range(6):
-            trigger = self.maze.find("**/hole_collide" + str(i))
+        #for i in range(6):
+        for i in range(3):
+            #trigger = self.maze.find("**/hole_collide" + str(i))
+            trigger = self.maze.find("**/hole"+str(i+1)+"_col")
             trigger.node().setIntoCollideMask(BitMask32.bit(0))
             trigger.node().setName("loseTrigger")
             self.loseTriggers.append(trigger)
@@ -204,14 +180,15 @@ class BallInMazeDemo(ShowBase):
         # what height to put the ball at every frame. Since this is not something
         # that we want the ball itself to collide with, it has a different
         # bitmask.
-        self.mazeGround = self.maze.find("**/ground_collide")
+        #self.mazeGround = self.maze.find("**/ground_collide")
+        self.mazeGround = self.maze.find("**/ground_col")
         self.mazeGround.node().setIntoCollideMask(BitMask32.bit(1))
 
         # Load the ball and attach it to the scene
         # It is on a root dummy node so that we can rotate the ball itself without
         # rotating the ray that will be attached to it
         self.ballRoot = render.attachNewNode("ballRoot")
-        self.ball = loader.loadModel("models/ball")
+        self.ball = loader.loadModel("models/bball")
         self.ball.reparentTo(self.ballRoot)
 
         # Find the collison sphere for the ball which was created in the egg file
@@ -269,6 +246,7 @@ class BallInMazeDemo(ShowBase):
         # Uncomment the next line to see it.
         #self.cTrav.showCollisions(render)  # Show traveser collisions
 
+
         # This section deals with lighting for the ball. Only the ball was lit
         # because the maze has static lighting pregenerated by the modeler
         ambientLight = AmbientLight("ambientLight")
@@ -293,25 +271,26 @@ class BallInMazeDemo(ShowBase):
         self.light = render.attachNewNode(Spotlight("Spot"))
         self.light.node().setScene(render)
         self.light.node().setShadowCaster(True, 1024, 1024)
-        #self.light.node().setAttenuation((1, 0, 1))
-        self.light.node().showFrustum()
-        self.light.node().getLens().setFov(40)
+        self.light.node().setAttenuation((1, 0, 1))
+        #self.light.node().showFrustum()
+        self.light.node().getLens().setFov(48)
         self.light.node().getLens().setNearFar(5, 300)
         #self.light.node().setColor((100000, 100000, 100000, 1))
-        self.light.node().setColor((10, 10, 10, 1))
-        self.light.setPos(0, 0, 10)
+        self.light.node().setColor((10000, 10000, 10000, 1))
+        self.light.setPos(0, 0, 40)
         self.light.setHpr(LVector3(0, -90, 0))
         render.setLight(self.light)
         render.setShaderAuto()
 
-        self.maze2.setPos(0, 0, 100)
+        #self.maze2.setPos(0, 0, 10)
+
         #self.ballRoot.setLight(render.attachNewNode(ambientLight))
         #self.ballRoot.setLight(render.attachNewNode(directionalLight))
 
         # Maze 2 light
         #self.maze2.setLight(self.light)
         #self.maze2.setLight(self.ambientL)
-        self.maze2.hide()
+        #self.maze2.hide()
         #self.maze.hide()
 
         # This section deals with adding a specular highlight to the ball to make
@@ -324,7 +303,7 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 50
+        self.mazeSpeed = 30
         # Set maze max rotation
         self.mazeMaxRotation = 20
         # Distància minima per passar al següent punt
@@ -359,11 +338,12 @@ class BallInMazeDemo(ShowBase):
     def start(self):
         # The maze model also has a locator in it for where to start the ball
         # To access it we use the find command
-        startPos = self.maze.find("**/start").getPos()
+        #startPos = self.maze.find("**/start").getPos()
+        startPos = (11,11, 3)
+
         # Set the ball in the starting position
         self.ballRoot.setPos(startPos)
         self.pid = pid(startPos[0], startPos[1])
-
         # INICIALITZAR A* AMB LABERINT HARDCODEJAT, S'HA DE CANVIAR
 
         # ----------- self.path_matrix, self.path = self.aStar.a_star(laberint, 26, 10, 465, 448, 89, 461) -----------------
@@ -384,8 +364,8 @@ class BallInMazeDemo(ShowBase):
         # Set the ball to the appropriate Z value for it to be exactly on the
         # ground
         newZ = colEntry.getSurfacePoint(render).getZ()
-        self.ballRoot.setZ(newZ + .4)
-
+        #self.ballRoot.setZ(newZ + .4)
+        self.ballRoot.setZ(newZ + 1.4)
         # Find the acceleration direction. First the surface normal is crossed with
         # the up vector to get a vector perpendicular to the slope
         norm = colEntry.getSurfaceNormal(render)
@@ -445,25 +425,6 @@ class BallInMazeDemo(ShowBase):
 
             self.maze.setH(0)
 
-    def rotateMaze2(self, p, r):
-        dt = globalClock.getDt()
-        if r != 0 or p != 0:
-            self.maze2.setR(self.maze2, r * self.mazeSpeed * dt)
-            self.maze2.setP(self.maze2, p * self.mazeSpeed * dt)
-
-            # Check bounds
-            if self.maze2.getR() > self.mazeMaxRotation:
-                self.maze2.setR(self.mazeMaxRotation)
-            elif self.maze2.getR() < -self.mazeMaxRotation:
-                self.maze2.setR(-self.mazeMaxRotation)
-
-            if self.maze2.getP() > self.mazeMaxRotation:
-                self.maze2.setP(self.mazeMaxRotation)
-            elif self.maze2.getP() < -self.mazeMaxRotation:
-                self.maze2.setP(-self.mazeMaxRotation)
-
-            self.maze2.setH(0)
-
     # This is the task that deals with making everything interactive
     def rollTask(self, task):
         # Standard technique for finding the amount of time since the last
@@ -505,9 +466,9 @@ class BallInMazeDemo(ShowBase):
         for i in range(self.cHandler.getNumEntries()):
             entry = self.cHandler.getEntry(i)
             name = entry.getIntoNode().getName()
-            if name == "wall_collide":
+            if name == "wall_col":
                 self.wallCollideHandler(entry)
-            elif name == "ground_collide":
+            elif name == "ground_col":
                 self.groundCollideHandler(entry)
             elif name == "loseTrigger":
                 vr.restart=1
@@ -537,8 +498,9 @@ class BallInMazeDemo(ShowBase):
             else:
                 self.indexPuntActual = len(self.path) - 1"""
 
-        p_rotation, r_rotation = self.pid.getPR(self.ballRoot.getPos()[0], self.ballRoot.getPos()[1], xFinal, yFinal, self.maze.getP(), self.maze.getR(), dt)
-        
+        #p_rotation, r_rotation = self.pid.getPR(self.ballRoot.getPos()[0], self.ballRoot.getPos()[1], xFinal, yFinal, self.maze.getP(), self.maze.getR(), dt)
+        p_rotation = 0
+        r_rotation = 0
         if key_down(KeyboardButton.up()):
             p_rotation = -1
         elif key_down(KeyboardButton.down()):
@@ -552,7 +514,7 @@ class BallInMazeDemo(ShowBase):
         
 
         self.rotateMaze(p_rotation, r_rotation)
-        self.rotateMaze2(p_rotation, r_rotation)
+        #self.rotateMaze2(p_rotation, r_rotation)
 
 
 
@@ -586,8 +548,6 @@ class BallInMazeDemo(ShowBase):
         toPos = entry.getInteriorPoint(render)
         taskMgr.remove('rollTask')  # Stop the maze task
 
-
-
         # Move the ball into the hole over a short sequence of time. Then wait a
         # second and call start to reset the game
         Sequence(
@@ -606,10 +566,6 @@ class BallInMazeDemo(ShowBase):
             ival.pause()
         else:
             ival.resume()
-
-    def toggleUpdateShadowMap(self):
-        buffer = self.light.node().getShadowBuffer(base.win.gsg)
-        buffer.active = not buffer.active
 
     def shaderSupported(self):
         return base.win.getGsg().getSupportsBasicShaders() and \
