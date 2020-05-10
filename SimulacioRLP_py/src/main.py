@@ -50,9 +50,14 @@ import threading as th
 import speechRecognition as sr
 import _thread
 import threading
-vr = sr.VoiceRecognition(0)
-action = "start"
 import cv2
+vr = sr.VoiceRecognition(0)
+
+action = "start"
+voice_solving = False
+dir_veu = (0,0)
+th = None
+
 
 # Some constants for the program
 ACCEL = 70         # Acceleration in ft/sec/sec
@@ -63,14 +68,24 @@ MAX_SPEED_SQ = MAX_SPEED ** 2  # Squared to make it easier to use lengthSquared
 timerStatus = 'stop'
 
 
+def finalitzar():
+    global th
+    if th is not None:
+        th.join()
+
+    sys.exit()
+
 def listenVoice():
     global action
+    global voice_solving
+    global dir_veu
+
     while 1:
         if vr.restart:
             vr.restart = 0
             sys.exit()
 
-        accio, coord = vr.recon_Voice()
+        accio, dire = vr.recon_Voice()
 
         if accio == 'a1':
             print('Empezando partida')
@@ -80,10 +95,18 @@ def listenVoice():
             action="stop"
         if accio == 'a3':
             print('Moviendo tablero a las coordenadas dichas')
+
             action="coord"
         if accio == 'a4':
             print('Reiniciando...')
             action = "restart"
+        if accio == 'a5':
+            # Mode resoldre amb veu
+            voice_solving = vr.voice_solving
+            print("VOICE SOLVING:", voice_solving)
+        if accio == 'a6':
+            dir_veu = dire
+            print("VOICE DIR:", dir_veu)
 
 
 class BallInMazeDemo(ShowBase):
@@ -104,14 +127,14 @@ class BallInMazeDemo(ShowBase):
             print("Error: Video driver reports that depth textures are not supported.")
             return
 
-        self.accept("escape", sys.exit)  # Escape quits
+        self.accept("escape", finalitzar)  # Escape quits
 
         # Disable default mouse-based camera control.  This is a method on the
         # ShowBase class from which we inherit.
         self.disableMouse()
 
         # Place the camera
-        camera.setPosHpr(0, 0, 200, 0, -90, 0)
+        camera.setPosHpr(0, 0, 80, 0, -90, 0)
         #camera.setPosHpr(0, 0, 25, 0, -90, 0)
         #base.camLens.setNearFar(200, 600)
 
@@ -307,9 +330,9 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 30
+        self.mazeSpeed = 4
         # Set maze max rotation
-        self.mazeMaxRotation = 20
+        self.mazeMaxRotation = 8
         # Distància minima per passar al següent punt
         self.minDist = 1
         # Pas per saltar punts del path
@@ -522,21 +545,21 @@ class BallInMazeDemo(ShowBase):
 
             # The collision handler collects the collisions. We dispatch which function
             # to handle the collision based on the name of what was collided into
-            if self.ready_to_solve:
-                for i in range(self.cHandler.getNumEntries()):
-                    entry = self.cHandler.getEntry(i)
-                    name = entry.getIntoNode().getName()
-                    if action == "restart":
-                        self.loseGame(entry)
-                    if name == "wall_col":
-                        self.wallCollideHandler(entry)
-                    elif name == "ground_col":
-                        self.groundCollideHandler(entry)
-                    elif name == "loseTrigger":
-                        vr.restart=1
-                        x = threading.Thread(target=listenVoice)
-                        x.start()
-                        self.loseGame(entry)
+            for i in range(self.cHandler.getNumEntries()):
+                entry = self.cHandler.getEntry(i)
+                name = entry.getIntoNode().getName()
+                if action == "restart":
+                    self.loseGame(entry)
+                if name == "wall_col":
+                    self.wallCollideHandler(entry)
+                elif name == "ground_col":
+                    self.groundCollideHandler(entry)
+                elif name == "loseTrigger":
+                    vr.restart=1
+                    global th
+                    th = threading.Thread(target=listenVoice)
+                    th.start()
+                    self.loseGame(entry)
 
             # Read the mouse position and tilt the maze accordingly
             # Rotation axes use (roll, pitch, heave)
@@ -560,14 +583,21 @@ class BallInMazeDemo(ShowBase):
                 else:
                     self.indexPuntActual = len(self.path) - 1"""
 
-            p_rotation = 0
-            r_rotation = 0
-
             ballPos = self.get_ball_position()
-            print("BALL POS: ", ballPos)
-            print("END POS: ", self.digitizer.endPos)
-            if ballPos is not None:
-                p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0], self.digitizer.endPos[1], self.digitizer.endPos[0], self.maze.getP(), self.maze.getR(), dt)
+            #print("BALL POS: ", ballPos)
+            #print("END POS: ", self.digitizer.endPos)
+
+            if voice_solving:
+                p_rotation = dir_veu[0]
+                r_rotation = dir_veu[1]
+            else:
+                p_rotation = 0
+                r_rotation = 0
+
+                if ballPos is not None:
+                    p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
+                                                            self.digitizer.endPos[1], self.digitizer.endPos[0],
+                                                            self.maze.getP(), self.maze.getR(), dt)
 
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
@@ -646,13 +676,10 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    pass
-    #x = threading.Thread(target=listenVoice)
-    #x.start()
+    th = threading.Thread(target=listenVoice)
+    th.start()
 except:
     print("Error: unable to start thread")
 
 
 demo.run()
-
-x.join()

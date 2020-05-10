@@ -4,11 +4,13 @@ import sys
 class VoiceRecognition:
     def __init__(self, restart):
         self.restart=restart
+        self.voice_solving = False
+        self.dir = (0,0)
 
 
     def recon_Voice(self):
         r = sr.Recognizer()
-        coord=[]
+        coord=None
         correcto1=1
         correcto2=1
         accio = "none"
@@ -70,6 +72,32 @@ class VoiceRecognition:
 
                 elif 'reiniciar' == text or 'reinicia' == text:
                     accio = "a4"
+                elif 'voz' == text:
+                    accio = "a5"
+                    self.voice_solving = not self.voice_solving
+                    self.dir = (0, 0)
+                elif self.voice_solving:
+                    p = self.dir[0]
+                    r = self.dir[1]
+                    if 'arriba' == text:
+                        accio = "a6"
+                        p = -1
+                    elif 'abajo' == text:
+                        accio = "a6"
+                        p = 1
+                    elif 'izquierda' == text:
+                        accio = "a6"
+                        r = -1
+                    elif 'derecha' == text:
+                        accio = "a6"
+                        r = 1
+                    elif 'frenar' == text:
+                        accio = "a6"
+                        p = 0
+                        r = 0
+
+                    self.dir = (p, r)
+                    coord = self.dir
 
                 else:
                      print("No hay comando asociado a esta palabra")

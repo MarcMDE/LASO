@@ -1,5 +1,5 @@
 class pid:
-	def __init__(self, xInit, yInit, p = 5, d = 5.6):
+	def __init__(self, xInit, yInit, p = 0.5, d = 5.6):
 		self.p = p
 		self.d = d
 		self.pAngle = 0.2
@@ -17,7 +17,7 @@ class pid:
 		self.prevY = y0
 
 		angleR = difX*self.p - velX*self.d
-		angleP = -difY*self.p + velY*self.d
+		angleP = difY*self.p - velY*self.d
 
 		retR = max(min((angleR - r_act)*self.pAngle, 1), -1)
 		retP = max(min((angleP - p_act)*self.pAngle, 1), -1)
