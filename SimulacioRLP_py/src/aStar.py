@@ -7,8 +7,6 @@ import time
 
 class aStar:
 
-	
-
 	def distance(self, punt0, puntf):
 		x0, y0 = punt0
 		xf, yf = puntf

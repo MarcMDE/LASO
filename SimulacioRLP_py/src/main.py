@@ -108,10 +108,10 @@ class BallInMazeDemo(ShowBase):
 
         # Disable default mouse-based camera control.  This is a method on the
         # ShowBase class from which we inherit.
-        #self.disableMouse()
+        self.disableMouse()
 
         # Place the camera
-        camera.setPosHpr(0, 0, 400, 0, -90, 0)
+        camera.setPosHpr(0, 0, 200, 0, -90, 0)
         #camera.setPosHpr(0, 0, 25, 0, -90, 0)
         #base.camLens.setNearFar(200, 600)
 
@@ -328,13 +328,9 @@ class BallInMazeDemo(ShowBase):
         self.camera2.setPosHpr(0, 0, PI_CAMERA_H, 0, -90, 0)
 
         self.digitizer = Digitizer()
-
-        self.ready_to_solve = False
-
-
         self.aStar = aStar()
 
-
+        self.ready_to_solve = False
 
         # Finally, we call start for more initialization
         self.start()
@@ -488,7 +484,7 @@ class BallInMazeDemo(ShowBase):
         if dt > .2:
             return Task.cont
 
-        print(action)
+        #print(action)
         if action == "start":
             a=1
 
@@ -504,8 +500,6 @@ class BallInMazeDemo(ShowBase):
 
 
         if self.ready_to_solve:
-
-            self.get_ball_position()
 
             key_down = base.mouseWatcherNode.is_button_down
 
@@ -566,9 +560,15 @@ class BallInMazeDemo(ShowBase):
                 else:
                     self.indexPuntActual = len(self.path) - 1"""
 
-            #p_rotation, r_rotation = self.pid.getPR(self.ballRoot.getPos()[0], self.ballRoot.getPos()[1], xFinal, yFinal, self.maze.getP(), self.maze.getR(), dt)
             p_rotation = 0
             r_rotation = 0
+
+            ballPos = self.get_ball_position()
+            print("BALL POS: ", ballPos)
+            print("END POS: ", self.digitizer.endPos)
+            if ballPos is not None:
+                p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0], self.digitizer.endPos[1], self.digitizer.endPos[0], self.maze.getP(), self.maze.getR(), dt)
+
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
             elif key_down(KeyboardButton.down()):
@@ -579,10 +579,7 @@ class BallInMazeDemo(ShowBase):
             elif key_down(KeyboardButton.right()):
                 r_rotation = 1
 
-
-
             self.rotateMaze(p_rotation, r_rotation)
-            #self.rotateMaze2(p_rotation, r_rotation)
 
 
 
@@ -650,8 +647,8 @@ demo = BallInMazeDemo()
 
 try:
     pass
-    x = threading.Thread(target=listenVoice)
-    x.start()
+    #x = threading.Thread(target=listenVoice)
+    #x.start()
 except:
     print("Error: unable to start thread")
 
