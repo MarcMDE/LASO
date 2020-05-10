@@ -632,10 +632,12 @@ demo = BallInMazeDemo()
 
 try:
     pass
-    #x = threading.Thread(target=listenVoice)
-    #x.start()
+    x = threading.Thread(target=listenVoice)
+    x.start()
 except:
     print("Error: unable to start thread")
 
 
 demo.run()
+
+x.join()

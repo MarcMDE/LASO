@@ -113,11 +113,10 @@ class Digitizer:
         b_detector = cv2.SimpleBlobDetector_create(params)
 
         h_keypoints = b_detector.detect(self.source_img_g)
-        print("N Keypoints: ",len(h_keypoints))
 
         im_with_keypoints = cv2.drawKeypoints(self.source_img_g, h_keypoints, np.array([]), (0, 0, 255),
                                               cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        cv2.imshow("holes", im_with_keypoints)
+        #cv2.imshow("holes", im_with_keypoints)
         # ---------
 
         # Holes insertion
@@ -155,7 +154,7 @@ class Digitizer:
         for m, n in matches:
             if m.distance < ratio_thresh * n.distance:
                 good_matches.append(m)
-        print(len(good_matches))
+
         if len(good_matches) < 4:
             return False
         
@@ -210,7 +209,6 @@ class Digitizer:
         #cv2.imshow("ball pos", im_with_keypoints)
 
         if len(h_keypoints) == 1:
-            print("BALL FOUND")
             self.lastBallPos = h_keypoints[0].pt
             return h_keypoints[0].pt
         else:
