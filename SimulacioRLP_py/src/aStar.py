@@ -19,10 +19,10 @@ class aStar:
 		dist = punt[1]
 		ret = []
 		
-		if(lab[x+1][y-1] == 0 and exp[x+1][y-1] == -1):
-			ret.append([(x+1, y-1), dist + 1, self.distance((x+1, y-1), end_p)])	
-		if(x+1 >= 0 and x+1 < width and lab[x+1][y+1] == 0 and exp[x+1][y+1] == -1):
-			ret.append([(x+1, y+1), dist + 1, self.distance((x+1, y+1), end_p)])
+		if(lab[x][y-1] == 0 and exp[x][y-1] == -1):
+			ret.append([(x, y-1), dist + 1, self.distance((x, y-1), end_p)])	
+		if(x+1 >= 0 and x < width and lab[x][y+1] == 0 and exp[x][y+1] == -1):
+			ret.append([(x, y+1), dist + 1, self.distance((x, y+1), end_p)])
 		if(lab[x-1][y] == 0 and exp[x-1][y] == -1):
 			ret.append([(x-1, y), dist + 1, self.distance((x-1, y), end_p)])
 		if(lab[x+1][y] == 0 and exp[x+1][y] == -1):
