@@ -583,6 +583,7 @@ class BallInMazeDemo(ShowBase):
                 else:
                     self.indexPuntActual = len(self.path) - 1"""
 
+            # ball pos (y,x)
             ballPos = self.get_ball_position()
             #print("BALL POS: ", ballPos)
             #print("END POS: ", self.digitizer.endPos)
@@ -593,12 +594,13 @@ class BallInMazeDemo(ShowBase):
             else:
                 p_rotation = 0
                 r_rotation = 0
-
+                print(ballPos)
+                """
                 if ballPos is not None:
-                    p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
+                    p_rotation, r_rotation = self.pid.getPR(ballPos[0], ballPos[1],
                                                             self.digitizer.endPos[1], self.digitizer.endPos[0],
                                                             self.maze.getP(), self.maze.getR(), dt)
-
+                """
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
             elif key_down(KeyboardButton.down()):
@@ -676,8 +678,9 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    th = threading.Thread(target=listenVoice)
-    th.start()
+    pass
+    #th = threading.Thread(target=listenVoice)
+    #th.start()
 except:
     print("Error: unable to start thread")
 

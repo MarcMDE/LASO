@@ -201,23 +201,36 @@ class Digitizer:
         #check_result = cv2.addWeighted(self.source_img, 0.5, n_img, 0.5, 1)
         #cv2.imshow("show result", check_result)
 
-        h_keypoints = self.b_detector.detect(n_img)
+        #ball_mask = np.zeros((512, 512), dtype='uint8')
+        th = n_img[:,:,0].astype('int16') - 0.3*(n_img[:,:,1].astype('int16') + n_img[:,:,2]) > 200
+        #ball_mask[th] = 255
+        #cv2.imshow("ball mask", ball_mask)
+        #cv2.imshow("n_img", n_img)
+        ball_indexs = np.argwhere(th)
+
+        if ball_indexs.any():
+            # ballPos [y,x]
+            self.lastBallPos = ball_indexs.mean(axis=0)
+
+        return self.lastBallPos
+
+        #h_keypoints = self.b_detector.detect(n_img)
         #print("N Keypoints: ", len(h_keypoints))
 
         #im_with_keypoints = cv2.drawKeypoints(n_img, h_keypoints, np.array([]), (0, 0, 255),
         #                                      cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
         #cv2.imshow("ball pos", im_with_keypoints)
-
+        """
         if len(h_keypoints) == 1:
             self.lastBallPos = h_keypoints[0].pt
             return h_keypoints[0].pt
         else:
             return self.lastBallPos
-
+        """
 # Testing
 if __name__ == "__main__":
     d = Digitizer()
     d.set_src_img(cv2.imread('frame_tests/fs.jpg', 1))
     d.digitize_source()
-    d.get_ball_pos(cv2.imread('frame_tests/ft2.jpg', 1))
+    d.get_ball_pos(cv2.imread('frame_tests/ft6.jpg', 1))
     cv2.waitKey()
