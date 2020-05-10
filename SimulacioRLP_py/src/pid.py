@@ -13,8 +13,6 @@ class pid:
 		velX = (x0 - self.prevX) / dt
 		velY = (y0 - self.prevY) / dt
 
-		print(difX, difY, velX, velY)
-
 		self.prevX = x0
 		self.prevY = y0
 

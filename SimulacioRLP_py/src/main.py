@@ -337,7 +337,7 @@ class BallInMazeDemo(ShowBase):
         self.mazeMaxRotation = 20
 
         # Distància minima per passar al següent punt
-        self.minDist = 1
+        self.minDist = 10
         # Pas per saltar punts del path
         self.pas = 1
 
@@ -468,7 +468,7 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.set_src_img(img)
             self.digitizer.digitize_source()
 
-            pm, p = self.aStar.a_star(self.digitizer.source_mask, 18, 0,
+            pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 18, 0,
                                       self.digitizer.startPos[1], self.digitizer.startPos[0],
                                       self.digitizer.endPos[1], self.digitizer.endPos[0])
 
@@ -578,22 +578,25 @@ class BallInMazeDemo(ShowBase):
                 self.maze.setR(mpos.getX() * 10)
             """
 
-            # posFPixel = self.path[self.indexPuntActual]
 
-            xFinal = 4 #posFPixel[1]/np.shape(laberint)[0]*13 - 6.5
-            yFinal = -4 #-(posFPixel[0]/np.shape(laberint)[1]*13.5 - 6.8)
+            ballPos = self.get_ball_position()
+            print("BALL POS: ", ballPos)
 
-            dist = math.sqrt((xFinal - self.ballRoot.getPos()[0])**2 + (yFinal - self.ballRoot.getPos()[1])**2)
+            posFPixel = self.path[self.indexPuntActual]
 
-            """if(dist < self.minDist):
+            xFinal = posFPixel[1] #posFPixel[1]/np.shape(laberint)[0]*13 - 6.5
+            yFinal = posFPixel[0] #-(posFPixel[0]/np.shape(laberint)[1]*13.5 - 6.8)
+
+            dist = math.sqrt((xFinal - ballPos[1])**2 + (yFinal - ballPos[0])**2)
+
+            if(dist < self.minDist):
                 if(self.indexPuntActual + self.pas <= len(self.path) - 1):
                     self.indexPuntActual += self.pas
                 else:
-                    self.indexPuntActual = len(self.path) - 1"""
+                    self.indexPuntActual = len(self.path) - 1
 
             # ball pos (y,x)
-            ballPos = self.get_ball_position()
-            print("BALL POS: ", ballPos)
+            
             #print("END POS: ", self.digitizer.endPos)
 
             if voice_solving:
@@ -602,13 +605,13 @@ class BallInMazeDemo(ShowBase):
             else:
                 p_rotation = 0
                 r_rotation = 0
-                print(ballPos, end = "")
+                print(ballPos, dist)
 
 
                 #print(ballPos)
                 if ballPos is not None:
                     p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
-                        420, 200,
+                        xFinal, yFinal,
                         self.maze.getP(), self.maze.getR(), dt)
 
             if key_down(KeyboardButton.up()):
