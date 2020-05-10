@@ -51,6 +51,7 @@ import speechRecognition as sr
 import _thread
 import threading
 vr = sr.VoiceRecognition(0)
+action = "start"
 import cv2
 
 # Some constants for the program
@@ -74,6 +75,7 @@ timerStatus = 'stop'
 
 
 def listenVoice():
+    global action
     while 1:
         if vr.restart:
             vr.restart = 0
@@ -83,23 +85,25 @@ def listenVoice():
 
         if accio == 'a1':
             print('Empezando partida')
-
+            action="start"
         if accio == 'a2':
             print('parando')
+            action="stop"
         if accio == 'a3':
             print('Moviendo tablero a las coordenadas dichas')
-
+            action="coord"
         if accio == 'a4':
             print('Reiniciando...')
-
+            action = "restart"
 
 
 class BallInMazeDemo(ShowBase):
     def __init__(self):
+        global action
         # Initialize the ShowBase class from which we inherit, which will
         # create a window and set up everything we need for rendering into it.
+        action="start"
         ShowBase.__init__(self)
-
         winProps = WindowProperties()
         winProps.setTitle("LASO Simulation - (RLP 2019-2020)")
         base.win.requestProperties(winProps)
@@ -468,6 +472,20 @@ class BallInMazeDemo(ShowBase):
         # Standard technique for finding the amount of time since the last
         # frame
         #print("\r",self.maze.getR(), self.maze.getP(), self.ballRoot.getPos(), end="")
+        print(action)
+        if action == "start":
+            a=1
+
+        elif action == "stop":
+            while action == "stop":
+                a=0
+
+       # elif action == "restart": in Line 531
+
+        elif action == "coord":
+            a=1
+            #ALGUNA CRIDA A METODE DE NARCIS/MARC
+
 
         dt = globalClock.getDt()
 
@@ -475,11 +493,6 @@ class BallInMazeDemo(ShowBase):
         # to leave the field if this functions runs, so ignore the frame
         if dt > .2:
             return Task.cont
-
-        """
-        a = self.recon_voice.recon()
-        print(a)
-        """
 
         key_down = base.mouseWatcherNode.is_button_down
 
@@ -504,6 +517,9 @@ class BallInMazeDemo(ShowBase):
         for i in range(self.cHandler.getNumEntries()):
             entry = self.cHandler.getEntry(i)
             name = entry.getIntoNode().getName()
+            if action == "restart":
+                self.loseGame(entry)
+
             if name == "wall_collide":
                 self.wallCollideHandler(entry)
             elif name == "ground_collide":
@@ -582,6 +598,8 @@ class BallInMazeDemo(ShowBase):
     def loseGame(self, entry):
         # The triggers are set up so that the center of the ball should move to the
         # collision point to be in the hole
+        global action
+        action = "start"
         toPos = entry.getInteriorPoint(render)
         taskMgr.remove('rollTask')  # Stop the maze task
 
