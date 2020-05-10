@@ -32,6 +32,8 @@ from pid import *
 from aStar import *
 import math
 
+import time
+
 from panda3d.core import *
 import sys
 import os
@@ -330,9 +332,9 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 4
+        self.mazeSpeed = 8
         # Set maze max rotation
-        self.mazeMaxRotation = 8
+        self.mazeMaxRotation = 10
         # Distància minima per passar al següent punt
         self.minDist = 1
         # Pas per saltar punts del path
@@ -478,20 +480,23 @@ class BallInMazeDemo(ShowBase):
 
     def get_ball_position(self):
         # PI CAMERA PHOTO
-        screenshot = self.camera2_buffer.getScreenshot()
-        if screenshot:
-            v = memoryview(screenshot.getRamImage()).tolist()
-            img = np.array(v, dtype=np.uint8)
-            img = img.reshape((screenshot.getYSize(), screenshot.getXSize(), 4))
-            img = img[::-1]
-            img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
-            pos = self.digitizer.get_ball_pos(img)
+        #startTime = time.time()
+        #screenshot = self.camera2_buffer.getScreenshot()
+        #if screenshot:
+            #v = memoryview(screenshot.getRamImage()).tolist()
+            #img = np.array(v, dtype=np.uint8)
+            #img = img.reshape((screenshot.getYSize(), screenshot.getXSize(), 4))
+            #img = img[::-1]
+        self.camera2_buffer.saveScreenshot("ts.jpg")
+        img = cv2.imread("ts.jpg", 1)
+        #img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+        pos = self.digitizer.get_ball_pos(img)
 
             #if pos is not None:
                 #print("BALL POSITION: ", pos)
                 #check_res = cv2.circle(self.digitizer.source_img, (int(pos[0]), int(pos[1])), 24, (0, 0, 255))
                 #cv2.imshow("BALL POS RES", check_res)
-            return pos
+        return pos
 
 
     # This is the task that deals with making everything interactive
@@ -585,7 +590,7 @@ class BallInMazeDemo(ShowBase):
 
             # ball pos (y,x)
             ballPos = self.get_ball_position()
-            #print("BALL POS: ", ballPos)
+            print("BALL POS: ", ballPos)
             #print("END POS: ", self.digitizer.endPos)
 
             if voice_solving:
@@ -594,7 +599,7 @@ class BallInMazeDemo(ShowBase):
             else:
                 p_rotation = 0
                 r_rotation = 0
-                print(ballPos)
+                #print(ballPos)
                 """
                 if ballPos is not None:
                     p_rotation, r_rotation = self.pid.getPR(ballPos[0], ballPos[1],
