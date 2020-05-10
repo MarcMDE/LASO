@@ -7,7 +7,7 @@ from aStar import aStar
 if __name__ == "__main__":
     d = Digitizer()
     d.set_src_img(cv2.imread('frame_tests/fs.jpg', 1))
-    d.digitalize_source()
+    d.digitize_source()
 
     a = aStar()
     pm, p = a.a_star(d.source_mask, 18, 0, d.startPos[1], d.startPos[0], d.endPos[1], d.endPos[0])
