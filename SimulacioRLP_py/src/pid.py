@@ -1,8 +1,8 @@
 class pid:
-	def __init__(self, xInit, yInit, p = 0.5, d = 5.6):
+	def __init__(self, xInit, yInit, p = 0, d = 0.2):
 		self.p = p
 		self.d = d
-		self.pAngle = 0.2
+		self.pAngle = 0.1
 		self.prevX = xInit
 		self.prevY = yInit
 
@@ -12,6 +12,8 @@ class pid:
 
 		velX = (x0 - self.prevX) / dt
 		velY = (y0 - self.prevY) / dt
+
+		print(difX, difY, velX, velY)
 
 		self.prevX = x0
 		self.prevY = y0

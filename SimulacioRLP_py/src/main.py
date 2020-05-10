@@ -330,9 +330,9 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 4
+        self.mazeSpeed = 20
         # Set maze max rotation
-        self.mazeMaxRotation = 8
+        self.mazeMaxRotation = 20
         # Distància minima per passar al següent punt
         self.minDist = 1
         # Pas per saltar punts del path
@@ -594,13 +594,13 @@ class BallInMazeDemo(ShowBase):
             else:
                 p_rotation = 0
                 r_rotation = 0
-                print(ballPos)
-                """
+                print(ballPos, end = "")
+
                 if ballPos is not None:
-                    p_rotation, r_rotation = self.pid.getPR(ballPos[0], ballPos[1],
-                                                            self.digitizer.endPos[1], self.digitizer.endPos[0],
-                                                            self.maze.getP(), self.maze.getR(), dt)
-                """
+                    p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
+                        420, 200,
+                        self.maze.getP(), self.maze.getR(), dt)
+
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
             elif key_down(KeyboardButton.down()):
