@@ -87,9 +87,6 @@ class aStar:
 
 		lab[forats == 1] = 2
 
-
-
-
 		start_p = (x0, y0)
 		end_p = (xf, yf)
 
