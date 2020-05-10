@@ -369,7 +369,9 @@ class BallInMazeDemo(ShowBase):
         #startPos = self.maze.find("**/start").getPos()
         startPos = (11.5, 11.5, 3)
         self.ballRoot.setPos(startPos)
-        self.ballRoot.hide()
+
+        if not self.ready_to_solve:
+            self.ballRoot.hide()
 
         self.pid = pid(startPos[0], startPos[1])
         # INICIALITZAR A* AMB LABERINT HARDCODEJAT, S'HA DE CANVIAR
