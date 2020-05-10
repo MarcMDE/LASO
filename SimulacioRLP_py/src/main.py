@@ -337,9 +337,9 @@ class BallInMazeDemo(ShowBase):
         self.mazeMaxRotation = 20
 
         # Distància minima per passar al següent punt
-        self.minDist = 10
+        self.minDist = 20
         # Pas per saltar punts del path
-        self.pas = 1
+        self.pas = 20
 
         base.setBackgroundColor(0.2, 0.2, 0.2)
 
@@ -466,7 +466,7 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.set_src_img(img)
             self.digitizer.digitize_source()
 
-            pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 18, 0,
+            pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 25, 5,
                                       self.digitizer.startPos[1], self.digitizer.startPos[0],
                                       self.digitizer.endPos[1], self.digitizer.endPos[0])
 
