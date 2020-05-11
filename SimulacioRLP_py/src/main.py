@@ -355,6 +355,7 @@ class BallInMazeDemo(ShowBase):
 
         self.digitizer = Digitizer()
         self.aStar = aStar()
+        self.path = None
 
         self.ready_to_solve = False
 
@@ -469,8 +470,8 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.digitize_source()
 
             pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 10,
-                                      self.digitizer.startPos[1], self.digitizer.startPos[0],
-                                      self.digitizer.endPos[1], self.digitizer.endPos[0])
+                                              self.digitizer.startPos[1], self.digitizer.startPos[0],
+                                              self.digitizer.endPos[1], self.digitizer.endPos[0])
 
             check_result = cv2.addWeighted(self.digitizer.source_img_g.astype('uint8'), 0.5,
                                            np.clip(pm * 255, 0, 255).astype('uint8'), 0.5, 1)
