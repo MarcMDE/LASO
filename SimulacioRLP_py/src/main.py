@@ -332,7 +332,7 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 30
+        self.mazeSpeed = 12
         # Set maze max rotation
         self.mazeMaxRotation = 20
 
@@ -581,7 +581,7 @@ class BallInMazeDemo(ShowBase):
 
 
             ballPos = self.get_ball_position()
-            print("BALL POS: ", ballPos)
+            #print("BALL POS: ", ballPos)
 
             posFPixel = self.path[self.indexPuntActual]
 
@@ -606,7 +606,7 @@ class BallInMazeDemo(ShowBase):
             else:
                 p_rotation = 0
                 r_rotation = 0
-                print(ballPos, dist)
+                #print(ballPos, dist)
 
 
                 #print(ballPos)
@@ -614,6 +614,7 @@ class BallInMazeDemo(ShowBase):
                     p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
                         xFinal, yFinal,
                         self.maze.getP(), self.maze.getR(), dt)
+                    #print(p_rotation, r_rotation)
 
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
