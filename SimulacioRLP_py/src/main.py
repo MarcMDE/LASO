@@ -332,7 +332,7 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 30
+        self.mazeSpeed = 15
         # Set maze max rotation
         self.mazeMaxRotation = 20
 
@@ -692,9 +692,9 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    pass
-    #th = threading.Thread(target=listenVoice)
-    #th.start()
+    #pass
+    th = threading.Thread(target=listenVoice)
+    th.start()
 except:
     print("Error: unable to start thread")
 
