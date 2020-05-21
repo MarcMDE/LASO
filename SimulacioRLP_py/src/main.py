@@ -477,12 +477,12 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.set_src_img(img)
             self.digitizer.digitize_source()
 
-            pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 10,
+            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 10,
                                               self.digitizer.startPos[1], self.digitizer.startPos[0],
                                               self.digitizer.endPos[1], self.digitizer.endPos[0])
 
             check_result = cv2.addWeighted(self.digitizer.source_img_g.astype('uint8'), 0.5,
-                                           np.clip(pm * 255, 0, 255).astype('uint8'), 0.5, 1)
+                                           np.clip(self.pm * 255, 0, 255).astype('uint8'), 0.5, 1)
             cv2.imshow("laberint resolt sobre original", check_result)
 
             self.ready_to_solve = True
@@ -493,17 +493,29 @@ class BallInMazeDemo(ShowBase):
     def get_ball_position(self):
         # PI CAMERA PHOTO
         #startTime = time.time()
-        #screenshot = self.camera2_buffer.getScreenshot()
-        #if screenshot:
+        screenshot = self.camera2_buffer.getScreenshot()
+        if screenshot:
             #v = memoryview(screenshot.getRamImage()).tolist()
-            #img = np.array(v, dtype=np.uint8)
-            #img = img.reshape((screenshot.getYSize(), screenshot.getXSize(), 4))
-            #img = img[::-1]
-        self.camera2_buffer.saveScreenshot("ts.jpg")
-        img = cv2.imread("ts.jpg", 1)
+            img = np.asarray(screenshot.getRamImage(), dtype=np.uint8).copy()
+            img = img.reshape((screenshot.getYSize(), screenshot.getXSize(), 4))
+            img = img[::-1]
+        #self.camera2_buffer.saveScreenshot("ts.jpg")
+        #img = cv2.imread("ts.jpg", 1)
+
         #img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
         pos = self.digitizer.get_ball_pos(img)
+
+        img[self.pm == 1] = 0
+        img[self.pm == 1, 2] = 255
+
+        #print(pos)
+
+        #img = cv2.circle(img, (int(pos[1]), int(pos[0])), 10, (0,0,0), -1)
+
+        cv2.imshow('img', img)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+                pass
 
             #if pos is not None:
                 #print("BALL POSITION: ", pos)
@@ -518,7 +530,9 @@ class BallInMazeDemo(ShowBase):
         # frame
         #print("\r",self.maze.getR(), self.maze.getP(), self.ballRoot.getPos(), end="")
 
+
         dt = globalClock.getDt()
+        print("\r{:.3} fps      ".format(1/dt), end="")
 
         # If dt is large, then there has been a # hiccup that could cause the ball
         # to leave the field if this functions runs, so ignore the frame
@@ -554,7 +568,7 @@ class BallInMazeDemo(ShowBase):
                     #self.digitizer.set_src_img(img)
                     #self.digitizer.digitalize_source()
                     cv2.imshow('img', img)
-                    # cv2.waitKey(0)
+                    #cv2.waitKey(0)
 
             if key_down(KeyboardButton.ascii_key('s')):
                 print("Screenshot!")
