@@ -332,9 +332,11 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 15
+        self.mazeSpeed = 30
+        self.mazeVoiceSpeed = 8
         # Set maze max rotation
         self.mazeMaxRotation = 20
+        self.mazeVoiceMaxRotation = 10
 
         # Distància minima per passar al següent punt
         self.minDist = 20
@@ -438,22 +440,28 @@ class BallInMazeDemo(ShowBase):
             self.ballRoot.setPos(newPos)
 
     def rotateMaze(self, p, r):
+        maxRot = self.mazeMaxRotation
+        maxVel = self.mazeSpeed
+        if voice_solving:
+            maxRot=self.mazeVoiceMaxRotation
+            maxVel=self.mazeVoiceSpeed
+
         if self.ready_to_solve:
             dt = globalClock.getDt()
             if r != 0 or p != 0:
-                self.maze.setR(self.maze, r * self.mazeSpeed * dt)
-                self.maze.setP(self.maze, p * self.mazeSpeed * dt)
+                self.maze.setR(self.maze, r * maxVel * dt)
+                self.maze.setP(self.maze, p * maxVel * dt)
 
                 # Check bounds
-                if self.maze.getR() > self.mazeMaxRotation:
-                    self.maze.setR(self.mazeMaxRotation)
-                elif self.maze.getR() < -self.mazeMaxRotation:
-                    self.maze.setR(-self.mazeMaxRotation)
+                if self.maze.getR() > maxRot:
+                    self.maze.setR(maxRot)
+                elif self.maze.getR() < -maxRot:
+                    self.maze.setR(-maxRot)
 
-                if self.maze.getP() > self.mazeMaxRotation:
-                    self.maze.setP(self.mazeMaxRotation)
-                elif self.maze.getP() < -self.mazeMaxRotation:
-                    self.maze.setP(-self.mazeMaxRotation)
+                if self.maze.getP() > maxRot:
+                    self.maze.setP(maxRot)
+                elif self.maze.getP() < -maxRot:
+                    self.maze.setP(-maxRot)
 
                 self.maze.setH(0)
 
@@ -494,6 +502,7 @@ class BallInMazeDemo(ShowBase):
         self.camera2_buffer.saveScreenshot("ts.jpg")
         img = cv2.imread("ts.jpg", 1)
         #img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+
         pos = self.digitizer.get_ball_pos(img)
 
             #if pos is not None:
@@ -581,7 +590,7 @@ class BallInMazeDemo(ShowBase):
 
 
             ballPos = self.get_ball_position()
-            print("BALL POS: ", ballPos)
+            #print("BALL POS: ", ballPos)
 
             posFPixel = self.path[self.indexPuntActual]
 
@@ -603,17 +612,18 @@ class BallInMazeDemo(ShowBase):
             if voice_solving:
                 p_rotation = dir_veu[0]
                 r_rotation = dir_veu[1]
+                if p_rotation == 0 and r_rotation == 0 and ballPos is not None:
+                     p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0], ballPos[1], ballPos[0], self.maze.getP(), self.maze.getR(), dt)
+
             else:
                 p_rotation = 0
                 r_rotation = 0
-                print(ballPos, dist)
+                #print(ballPos, dist)
 
 
                 #print(ballPos)
                 if ballPos is not None:
-                    p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
-                        xFinal, yFinal,
-                        self.maze.getP(), self.maze.getR(), dt)
+                    p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0], xFinal, yFinal, self.maze.getP(), self.maze.getR(), dt)
 
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
