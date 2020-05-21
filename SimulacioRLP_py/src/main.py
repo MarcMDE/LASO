@@ -133,7 +133,7 @@ class BallInMazeDemo(ShowBase):
 
         # Disable default mouse-based camera control.  This is a method on the
         # ShowBase class from which we inherit.
-        self.disableMouse()
+        #self.disableMouse()
 
         # Place the camera
         camera.setPosHpr(0, 0, 80, 0, -90, 0)
@@ -144,6 +144,10 @@ class BallInMazeDemo(ShowBase):
         #self.maze = loader.loadModel("models/maze")
         self.maze = loader.loadModel("models/lab4")
         self.maze.reparentTo(render)
+
+        self.skybox = loader.loadModel("models/skybox")
+        self.skybox.reparentTo(render)
+        self.skybox.setPosHpr(0, 0, 0, 0, -180, 0)
 
         # Load custom maze
 
