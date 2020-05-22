@@ -32,7 +32,7 @@ class Digitizer:
         params.maxThreshold = 250
 
         params.filterByColor = True
-        params.blobColor = 0
+        params.blobColor = 255
 
         params.filterByInertia = True
         params.minInertiaRatio = 0.1
