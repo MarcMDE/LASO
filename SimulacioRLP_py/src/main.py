@@ -142,12 +142,23 @@ class BallInMazeDemo(ShowBase):
 
         # Load the maze and place it in the scene
         #self.maze = loader.loadModel("models/maze")
-        self.maze = loader.loadModel("models/lab4")
-        self.maze.reparentTo(render)
 
         self.skybox = loader.loadModel("models/skybox")
         self.skybox.reparentTo(render)
-        self.skybox.setPosHpr(0, 0, 0, 0, -180, 0)
+        self.skybox.setPosHpr(0, 0, 30, 0, -180, 0)
+        #self.skybox.setScale(2.54)
+
+        self.laso_box = loader.loadModel("models/laso_box")
+        self.laso_box.reparentTo(render)
+
+        self.laso_ax = loader.loadModel("models/laso_ax")
+        self.laso_ax.reparentTo(self.laso_box)
+        self.laso_ax.setPosHpr(0, 0, 14.2, 0, 0, 0)
+
+        self.maze = loader.loadModel("models/lab4")
+        self.maze.reparentTo(self.laso_ax)
+        self.maze.setPosHpr(0, 0, 0, 0, 0, 0)
+        #self.maze.setScale(2.54)
 
         # Load custom maze
 
@@ -453,11 +464,11 @@ class BallInMazeDemo(ShowBase):
             maxRot=self.mazeVoiceMaxRotation
             maxVel=self.mazeVoiceSpeed
 
-        if self.ready_to_solve:
+        if not self.ready_to_solve:
             dt = globalClock.getDt()
             if r != 0 or p != 0:
                 self.maze.setR(self.maze, r * maxVel * dt)
-                self.maze.setP(self.maze, p * maxVel * dt)
+                self.laso_ax.setP(self.maze, p * maxVel * dt)
 
                 # Check bounds
                 if self.maze.getR() > maxRot:
@@ -465,14 +476,18 @@ class BallInMazeDemo(ShowBase):
                 elif self.maze.getR() < -maxRot:
                     self.maze.setR(-maxRot)
 
-                if self.maze.getP() > maxRot:
-                    self.maze.setP(maxRot)
-                elif self.maze.getP() < -maxRot:
-                    self.maze.setP(-maxRot)
+                if self.laso_ax.getP() > maxRot:
+                    self.laso_ax.setP(maxRot)
+                elif self.laso_ax.getP() < -maxRot:
+                    self.laso_ax.setP(-maxRot)
 
                 self.maze.setH(0)
+                self.maze.setP(0)
+                self.laso_ax.setH(0)
+                self.laso_ax.setR(0)
 
     def solve(self):
+
         # PI CAMERA PHOTO
         screenshot = self.camera2_buffer.getScreenshot()
         if screenshot:
@@ -481,6 +496,7 @@ class BallInMazeDemo(ShowBase):
             img = img.reshape((screenshot.getYSize(), screenshot.getXSize(), 4))
             img = img[::-1]
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+
             self.digitizer.set_src_img(img)
             self.digitizer.digitize_source()
 
@@ -561,7 +577,7 @@ class BallInMazeDemo(ShowBase):
             #ALGUNA CRIDA A METODE DE NARCIS/MARC
 
 
-        if self.ready_to_solve:
+        if not self.ready_to_solve:
 
             key_down = base.mouseWatcherNode.is_button_down
 
@@ -609,7 +625,7 @@ class BallInMazeDemo(ShowBase):
                 self.maze.setR(mpos.getX() * 10)
             """
 
-
+            """
             ballPos = self.get_ball_position()
             #print("BALL POS: ", ballPos)
 
@@ -625,7 +641,7 @@ class BallInMazeDemo(ShowBase):
                     self.indexPuntActual += self.pas
                 else:
                     self.indexPuntActual = len(self.path) - 1
-
+            """
             # ball pos (y,x)
             
             #print("END POS: ", self.digitizer.endPos)
@@ -643,13 +659,14 @@ class BallInMazeDemo(ShowBase):
 
 
                 #print(ballPos)
+                """
                 if ballPos is not None:
 
                     p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
                         xFinal, yFinal,
                         self.maze.getP(), self.maze.getR(), dt)
                     #print(p_rotation, r_rotation)
-
+                """
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
             elif key_down(KeyboardButton.down()):
@@ -710,7 +727,8 @@ class BallInMazeDemo(ShowBase):
             self.ball.setQuat(prevRot * newRot)
 
         else:
-            self.solve()
+            pass
+            #self.solve()
 
         return Task.cont       # Continue the task indefinitely
 
@@ -752,9 +770,9 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    #pass
-    th = threading.Thread(target=listenVoice)
-    th.start()
+    pass
+    #th = threading.Thread(target=listenVoice)
+    #th.start()
 except:
     print("Error: unable to start thread")
 

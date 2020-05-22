@@ -61,7 +61,8 @@ class Digitizer:
         self.s_kp = self.fast.detect(self.source_img_g, None)
         self.s_kp, self.s_des = self.orb.compute(self.source_img_g, self.s_kp)
         img2 = cv2.drawKeypoints(self.source_img_g, self.s_kp, None, color=(255, 0, 0))
-        #cv2.imshow("Eye view image fast", img2)
+        cv2.imshow("Eye view image fast", img2)
+        cv2.waitKey()
 
     def digitize_source(self):
         #b = cv2.threshold(self.source_img_g, WG_THRESHOLD, 255, cv2.THRESH_BINARY)[1]
