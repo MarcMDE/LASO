@@ -32,7 +32,7 @@ class Digitizer:
         params.maxThreshold = 250
 
         params.filterByColor = True
-        params.blobColor = 255
+        params.blobColor = 0
 
         params.filterByInertia = True
         params.minInertiaRatio = 0.1
@@ -62,7 +62,6 @@ class Digitizer:
         self.s_kp, self.s_des = self.orb.compute(self.source_img_g, self.s_kp)
         img2 = cv2.drawKeypoints(self.source_img_g, self.s_kp, None, color=(255, 0, 0))
         cv2.imshow("Eye view image fast", img2)
-        cv2.waitKey()
 
     def digitize_source(self):
         #b = cv2.threshold(self.source_img_g, WG_THRESHOLD, 255, cv2.THRESH_BINARY)[1]
@@ -91,9 +90,9 @@ class Digitizer:
 
         b[startPosY-POS_DIST_CHECK:startPosY+POS_DIST_CHECK, startPosX-POS_DIST_CHECK:startPosX+POS_DIST_CHECK] = 255
         b[endPosY - POS_DIST_CHECK:endPosY + POS_DIST_CHECK,endPosX - POS_DIST_CHECK:endPosX + POS_DIST_CHECK] = 255
-        #cv2.imshow("corrected b,", b)
+        cv2.imshow("corrected b,", b)
 
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (8, 8))
         er = cv2.erode(255-b, kernel)
         di = cv2.dilate(er, kernel)
         b = ((255-di) / 255).astype('uint8')
