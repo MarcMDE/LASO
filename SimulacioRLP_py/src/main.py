@@ -1,3 +1,5 @@
+from __future__ import division
+
 #!/usr/bin/env python
 
 # Author: Shao Zhang, Phil Saltzman
@@ -24,6 +26,7 @@ from direct.gui.OnscreenText import OnscreenText
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.LerpInterval import LerpFunc
 from direct.interval.FunctionInterval import Func, Wait
+
 from direct.task.Task import Task
 import sys
 from recognition import *
@@ -53,6 +56,26 @@ import speechRecognition as sr
 import _thread
 import threading
 import cv2
+
+#GOOGLE CLOUD SPEECH
+
+import os
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-cdfca3ce38d9.json"
+
+from google.cloud import storage
+
+import re
+import sys
+
+from google.cloud import speech
+from google.cloud.speech import enums
+from google.cloud.speech import types
+
+
+# Audio recording parameters
+RATE = 16000
+CHUNK = int(RATE / 10)  # 100ms
+
 vr = sr.VoiceRecognition(0)
 
 action = "start"
@@ -77,38 +100,124 @@ def finalitzar():
 
     sys.exit()
 
-def listenVoice():
+def listen_print_loop(responses):
+    """Iterates through server responses and prints them.
+
+    The responses passed is a generator that will block until a response
+    is provided by the server.
+
+    Each response may contain multiple results, and each result may contain
+    multiple alternatives; for details, see https://goo.gl/tjCPAU.  Here we
+    print only the transcription for the top alternative of the top result.
+
+    In this case, responses are provided for interim results as well. If the
+    response is an interim one, print a line feed at the end of it, to allow
+    the next result to overwrite it, until the response is a final one. For the
+    final one, print a newline to preserve the finalized transcription.
+    """
     global action
     global voice_solving
     global dir_veu
+    dir = (0, 0)
 
-    while 1:
-        if vr.restart:
-            vr.restart = 0
-            sys.exit()
+    num_chars_printed = 0
 
-        accio, dire = vr.recon_Voice()
+    for response in responses:
+        if not response.results:
+            continue
 
-        if accio == 'a1':
-            print('Empezando partida')
-            action="start"
-        if accio == 'a2':
-            print('parando')
-            action="stop"
-        if accio == 'a3':
-            print('Moviendo tablero a las coordenadas dichas')
+        # The `results` list is consecutive. For streaming, we only care about
+        # the first result being considered, since once it's `is_final`, it
+        # moves on to considering the next utterance.
+        result = response.results[0]
 
-            action="coord"
-        if accio == 'a4':
-            print('Reiniciando...')
+        if not result.alternatives:
+            continue
+        # Display the transcription of the top alternative.
+        transcript = result.alternatives[0].transcript
+
+        tranSlipt = transcript.split()
+
+        if 'empezar' in tranSlipt or 'comenzar' in tranSlipt:
+            print("Game is runing")
+            action = "start"
+
+        elif 'para' in tranSlipt or 'parar' in tranSlipt:
+            print("Game finished")
+            action = "stop"
+
+        elif 'reiniciar' in tranSlipt or 'reinicia' in tranSlipt:
             action = "restart"
-        if accio == 'a5':
-            # Mode resoldre amb veu
-            voice_solving = vr.voice_solving
-            print("VOICE SOLVING:", voice_solving)
-        if accio == 'a6':
-            dir_veu = dire
-            print("VOICE DIR:", dir_veu)
+
+        elif 'cambiar' in tranSlipt or 'cambia' in tranSlipt:
+            voice_solving = not voice_solving
+            dir = (0, 0)
+
+        elif voice_solving:
+            p = dir[0]
+            r = dir[1]
+            if 'arriba' in tranSlipt:
+                p = -1
+            if 'abajo' in tranSlipt:
+                p = 1
+            if 'izquierda' in tranSlipt:
+                r = -1
+            if 'derecha' in tranSlipt:
+                r = 1
+            if 'recto' in tranSlipt:
+                p = 0
+                r = 0
+
+            dir = (p, r)
+            dir_veu = dir
+        # Display interim results, but with a carriage return at the end of the
+        # line, so subsequent lines will overwrite them.
+        #
+        # If the previous result was longer than this one, we need to print
+        # some extra spaces to overwrite the previous result
+        overwrite_chars = ' ' * (num_chars_printed - len(transcript))
+
+        if not result.is_final:
+            sys.stdout.write(transcript + overwrite_chars + '\r')
+            sys.stdout.flush()
+
+            num_chars_printed = len(transcript)
+
+        else:
+
+            print(transcript + overwrite_chars)
+
+
+             #Exit recognition if any of the transcribed phrases could be
+            # one of our keywords.
+            if re.search(r'\b(exit|quit)\b', transcript, re.I):
+                print('Exiting..')
+                break
+
+            num_chars_printed = 0
+
+def listenVoice():
+
+    language_code = 'es-ES'  # a BCP-47 language tag
+
+    client = speech.SpeechClient()
+    config = types.RecognitionConfig(
+        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=RATE,
+        language_code=language_code)
+    streaming_config = types.StreamingRecognitionConfig(
+        config=config,
+        interim_results=True)
+
+    with sr.MicrophoneStream(RATE, CHUNK) as stream:
+        audio_generator = stream.generator()
+        requests = (types.StreamingRecognizeRequest(audio_content=content)
+                    for content in audio_generator)
+
+        responses = client.streaming_recognize(streaming_config, requests)
+
+        # Now, put the transcription responses to use.
+        listen_print_loop(responses)
 
 
 class BallInMazeDemo(ShowBase):
