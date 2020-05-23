@@ -97,7 +97,7 @@ def finalitzar():
     global th
     if th is not None:
         th.join()
-
+    print()
     sys.exit()
 
 def listen_print_loop(responses):
