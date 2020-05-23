@@ -488,6 +488,8 @@ class BallInMazeDemo(ShowBase):
                                               self.digitizer.startPos[1], self.digitizer.startPos[0],
                                               self.digitizer.endPos[1], self.digitizer.endPos[0])
 
+            self.pathFollowed = np.zeros(self.pm.shape)
+
             check_result = cv2.addWeighted(self.digitizer.source_img_g.astype('uint8'), 0.5,
                                            np.clip(self.pm * 255, 0, 255).astype('uint8'), 0.5, 1)
             cv2.imshow("laberint resolt sobre original", check_result)
@@ -506,19 +508,25 @@ class BallInMazeDemo(ShowBase):
             img = np.asarray(screenshot.getRamImage(), dtype=np.uint8).copy()
             img = img.reshape((screenshot.getYSize(), screenshot.getXSize(), 4))
             img = img[::-1]
+            img = img[:,:,:3]
         #self.camera2_buffer.saveScreenshot("ts.jpg")
         #img = cv2.imread("ts.jpg", 1)
 
         #img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
-        pos = self.digitizer.get_ball_pos(img)
+        pos = self.digitizer.get_ball_pos(img).astype(np.int32)
+
+        self.pathFollowed[pos[0] - 1 : pos[0] + 2, pos[1] - 1 : pos[1] + 2] = 1
 
         img[self.pm == 1] = 0
         img[self.pm == 1, 2] = 255
 
+        img[self.pathFollowed == 1] = 0
+        img[self.pathFollowed == 1, 1] = 255
+
         #print(pos)
 
-        #img = cv2.circle(img, (int(pos[1]), int(pos[0])), 10, (0,0,0), -1)
+        img[pos[0] - 2 : pos[0] + 3, pos[1] - 2 : pos[1] + 3] = 0
 
         cv2.imshow('img', img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -621,10 +629,16 @@ class BallInMazeDemo(ShowBase):
             dist = math.sqrt((xFinal - ballPos[1])**2 + (yFinal - ballPos[0])**2)
 
             if(dist < self.minDist):
-                if(self.indexPuntActual + self.pas <= len(self.path) - 1):
+                """if(self.indexPuntActual + self.pas <= len(self.path) - 1):
                     self.indexPuntActual += self.pas
                 else:
-                    self.indexPuntActual = len(self.path) - 1
+                    self.indexPuntActual = len(self.path) - 1"""
+
+                while(self.aStar.distance((ballPos[0], ballPos[1]), self.path[self.indexPuntActual]) < self.pas):
+                    if(self.indexPuntActual < len(self.path) - 1):
+                        self.indexPuntActual += 1
+                    else:
+                        break
 
             # ball pos (y,x)
             
