@@ -60,7 +60,7 @@ import cv2
 #GOOGLE CLOUD SPEECH
 
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-cdfca3ce38d9.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-91d7b22ba751.json"
 
 from google.cloud import storage
 
