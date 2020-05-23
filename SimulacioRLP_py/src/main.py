@@ -149,9 +149,15 @@ def listen_print_loop(responses):
         elif 'reiniciar' in tranSlipt or 'reinicia' in tranSlipt:
             action = "restart"
 
-        elif 'cambiar' in tranSlipt or 'cambia' in tranSlipt:
-            voice_solving = not voice_solving
+        elif 'comandos' in tranSlipt or 'comando' in tranSlipt:
+            print("VOICE SOLVING ACTIVATED")
+            voice_solving = True
             dir = (0, 0)
+
+        elif 'automático' in tranSlipt or 'automatico' in tranSlipt:
+            print("VOICE SOLVING DEACTIVATED")
+            voice_solving = False
+
 
         elif voice_solving:
             p = dir[0]
