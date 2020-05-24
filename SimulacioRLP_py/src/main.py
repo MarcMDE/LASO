@@ -463,7 +463,7 @@ class BallInMazeDemo(ShowBase):
         # Distància minima per passar al següent punt
         self.minDist = 20
         # Pas per saltar punts del path
-        self.pas = 20
+        self.pas = 25
 
         base.setBackgroundColor(0.2, 0.2, 0.2)
 
@@ -744,10 +744,10 @@ class BallInMazeDemo(ShowBase):
             dist = math.sqrt((xFinal - ballPos[1])**2 + (yFinal - ballPos[0])**2)
 
             if(dist < self.minDist):
-                """if(self.indexPuntActual + self.pas <= len(self.path) - 1):
-                    self.indexPuntActual += self.pas
-                else:
-                    self.indexPuntActual = len(self.path) - 1"""
+                if(self.indexPuntActual == len(self.path) - 1):
+                    self.pid.p = 0.1
+                    self.pid.d = 0.11
+                    self.pid.pAngle = 0.08
 
                 while(self.aStar.distance((ballPos[0], ballPos[1]), self.path[self.indexPuntActual]) < self.pas):
                     if(self.indexPuntActual < len(self.path) - 1):
