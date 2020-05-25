@@ -62,15 +62,15 @@ import cv2
 import os
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-91d7b22ba751.json"
 
-from google.cloud import storage
 
 import re
 import sys
-
+"""
+from google.cloud import storage
 from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
-
+"""
 
 # Audio recording parameters
 RATE = 16000
@@ -881,9 +881,10 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    #pass
-    th = threading.Thread(target=listenVoice)
-    th.start()
+    #th = threading.Thread(target=listenVoice)
+    #th.start()
+    pass
+
 except:
     print("Error: unable to start thread")
 
