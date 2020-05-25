@@ -19,7 +19,7 @@ class Digitizer:
         # Utlitzem l'algorisme ORB per a obtenir els descriptors ja que es un dels més rapids.
         self.orb = cv2.ORB_create(edgeThreshold=131)
         # Utilitzem el FAST per a la feature detection.
-        self.fast = cv2.FastFeatureDetector_create(12, True, 2)
+        self.fast = cv2.FastFeatureDetector_create(9, True, 2)
 
         """
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
@@ -29,7 +29,9 @@ class Digitizer:
                             table_number=6,
                             key_size=12,
                             multi_probe_level=2)
+
         search_params = {}
+        search_params = dict(checks=100)
         # Utilitzem un "flann based matcher" per posar en correspondéncia els punts.
         self.flann = cv2.FlannBasedMatcher(index_params, search_params)
 
@@ -95,7 +97,7 @@ class Digitizer:
         print("START POS: ", self.startPos)
 
         i = cv2.circle(cv2.circle(self.source_img, (startPosX, startPosY), 8, (0,0,255)), (endPosX, endPosY), 8, (0, 255, 0))
-        #cv2.imshow("Positions", i)
+        cv2.imshow("Positions", i)
 
         # Definim que es terra i que es paret segons on es troben els punts inicals i finals
         if b[startPosY + POS_DIST_CHECK, startPosX + POS_DIST_CHECK] == 0:
@@ -146,7 +148,7 @@ class Digitizer:
 
         self.source_mask = b
         cv2.imshow("Final mask", self.source_mask*127)
-        #cv2.waitKey()
+        cv2.waitKey()
         #cv2.imwrite("out1.jpg", self.source_mask*127)
 
     def get_ball_pos(self, img):
@@ -161,7 +163,7 @@ class Digitizer:
         # Apliquem el flann matching per trobar la correspondéncia entre els punts del frame actual i els de la
         # imatge de referénca.
         matches = self.flann.knnMatch(des, self.s_des, k=2)
-        ratio_thresh = 0.4
+        ratio_thresh = 0.6
         good_matches = []
         for m, n in matches:
             if m.distance < ratio_thresh * n.distance:
@@ -171,9 +173,9 @@ class Digitizer:
         if len(good_matches) < 4:
             return False
         
-        #img3 = cv2.drawMatches(img_g, kp, self.source_img_g, self.s_kp, good_matches, None,
-        #                       flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-        #cv2.imshow("Matches", img3)
+        img3 = cv2.drawMatches(img_g, kp, self.source_img_g, self.s_kp, good_matches, None,
+                               flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+        cv2.imshow("Matches", img3)
         src_pts = np.float32([kp[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
         dst_pts = np.float32([self.s_kp[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
 

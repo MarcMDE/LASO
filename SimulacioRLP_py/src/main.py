@@ -644,7 +644,7 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.digitize_source()
             print("solve!!")
 
-            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 20,
+            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 10,
                                               self.digitizer.startPos[1], self.digitizer.startPos[0],
                                               self.digitizer.endPos[1], self.digitizer.endPos[0])
 
@@ -816,13 +816,15 @@ class BallInMazeDemo(ShowBase):
 
 
                 #print(ballPos)
-
+                """
                 if ballPos is not None:
 
                     p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
                         xFinal, yFinal,
                         self.maze.getP(), self.maze.getR(), dt)
                     #print(p_rotation, r_rotation)
+                """
+
 
 
             if key_down(KeyboardButton.up()):
