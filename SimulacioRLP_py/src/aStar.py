@@ -126,7 +126,13 @@ class aStar:
 		path = [end_p]
 		path_matrix = np.zeros(lab.shape).astype(int)
 
+		punt_actual_1 = end_p
+
+		punt_actual_2 = end_p
+
 		punt_actual = end_p
+
+		dir_anterior = tuple(map(lambda i, j: i - j, punt_actual, punt_actual_2))
 
 		path_matrix[punt_actual[0] - 1 : punt_actual[0] + 2, punt_actual[1] - 1 : punt_actual[1] + 2] = 1
 
@@ -140,11 +146,20 @@ class aStar:
 
 			ind = np.unravel_index(np.argmin(a, axis=None), a.shape)
 
+			punt_actual_2 = punt_actual_1
+
+			punt_actual_1 = punt_actual
+
 			punt_actual = tuple(map(sum, zip(punt_actual, ind, (-1, -1))))
+
+			direccio = tuple(map(lambda i, j: i - j, punt_actual, punt_actual_2))
 
 			path_matrix[punt_actual[0] - 1 : punt_actual[0] + 2, punt_actual[1] - 1 : punt_actual[1] + 2] = 1
 
-			path.insert(0, punt_actual)
+			if(direccio != dir_anterior):
+				path.insert(0, punt_actual)
+
+			dir_anterior = direccio
 
 		#print("Temps total: ", time.time() - start_time)
 

@@ -1,3 +1,5 @@
+from __future__ import division
+
 #!/usr/bin/env python
 
 # Author: Shao Zhang, Phil Saltzman
@@ -24,6 +26,7 @@ from direct.gui.OnscreenText import OnscreenText
 from direct.interval.MetaInterval import Sequence, Parallel
 from direct.interval.LerpInterval import LerpFunc
 from direct.interval.FunctionInterval import Func, Wait
+
 from direct.task.Task import Task
 import sys
 from recognition import *
@@ -53,6 +56,26 @@ import speechRecognition as sr
 import _thread
 import threading
 import cv2
+
+#GOOGLE CLOUD SPEECH
+
+import os
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-91d7b22ba751.json"
+
+
+import re
+import sys
+"""
+from google.cloud import storage
+from google.cloud import speech
+from google.cloud.speech import enums
+from google.cloud.speech import types
+"""
+
+# Audio recording parameters
+RATE = 16000
+CHUNK = int(RATE / 10)  # 100ms
+
 vr = sr.VoiceRecognition(0)
 
 action = "start"
@@ -74,41 +97,133 @@ def finalitzar():
     global th
     if th is not None:
         th.join()
-
+    print()
     sys.exit()
 
-def listenVoice():
+def listen_print_loop(responses):
+    """Iterates through server responses and prints them.
+
+    The responses passed is a generator that will block until a response
+    is provided by the server.
+
+    Each response may contain multiple results, and each result may contain
+    multiple alternatives; for details, see https://goo.gl/tjCPAU.  Here we
+    print only the transcription for the top alternative of the top result.
+
+    In this case, responses are provided for interim results as well. If the
+    response is an interim one, print a line feed at the end of it, to allow
+    the next result to overwrite it, until the response is a final one. For the
+    final one, print a newline to preserve the finalized transcription.
+    """
     global action
     global voice_solving
     global dir_veu
+    dir = (0, 0)
 
-    while 1:
-        if vr.restart:
-            vr.restart = 0
-            sys.exit()
+    num_chars_printed = 0
 
-        accio, dire = vr.recon_Voice()
+    for response in responses:
+        if not response.results:
+            continue
 
-        if accio == 'a1':
-            print('Empezando partida')
-            action="start"
-        if accio == 'a2':
-            print('parando')
-            action="stop"
-        if accio == 'a3':
-            print('Moviendo tablero a las coordenadas dichas')
+        # The `results` list is consecutive. For streaming, we only care about
+        # the first result being considered, since once it's `is_final`, it
+        # moves on to considering the next utterance.
+        result = response.results[0]
 
-            action="coord"
-        if accio == 'a4':
-            print('Reiniciando...')
+        if not result.alternatives:
+            continue
+        # Display the transcription of the top alternative.
+        transcript = result.alternatives[0].transcript
+
+        tranSlipt = transcript.split()
+
+        if 'empezar' in tranSlipt or 'comenzar' in tranSlipt:
+            print("Game is runing")
+            action = "start"
+
+        elif 'para' in tranSlipt or 'parar' in tranSlipt:
+            print("Game finished")
+            action = "stop"
+
+        elif 'reiniciar' in tranSlipt or 'reinicia' in tranSlipt:
             action = "restart"
-        if accio == 'a5':
-            # Mode resoldre amb veu
-            voice_solving = vr.voice_solving
-            print("VOICE SOLVING:", voice_solving)
-        if accio == 'a6':
-            dir_veu = dire
-            print("VOICE DIR:", dir_veu)
+
+        elif 'comandos' in tranSlipt or 'comando' in tranSlipt:
+            print("VOICE SOLVING ACTIVATED")
+            voice_solving = True
+            dir = (0, 0)
+
+        elif 'automático' in tranSlipt or 'automatico' in tranSlipt:
+            print("VOICE SOLVING DEACTIVATED")
+            voice_solving = False
+
+
+        elif voice_solving:
+            p = dir[0]
+            r = dir[1]
+            if 'arriba' in tranSlipt:
+                p = -1
+            if 'abajo' in tranSlipt:
+                p = 1
+            if 'izquierda' in tranSlipt:
+                r = -1
+            if 'derecha' in tranSlipt:
+                r = 1
+            if 'recto' in tranSlipt:
+                p = 0
+                r = 0
+
+            dir = (p, r)
+            dir_veu = dir
+        # Display interim results, but with a carriage return at the end of the
+        # line, so subsequent lines will overwrite them.
+        #
+        # If the previous result was longer than this one, we need to print
+        # some extra spaces to overwrite the previous result
+        overwrite_chars = ' ' * (num_chars_printed - len(transcript))
+
+        if not result.is_final:
+            sys.stdout.write(transcript + overwrite_chars + '\r')
+            sys.stdout.flush()
+
+            num_chars_printed = len(transcript)
+
+        else:
+
+            print(transcript + overwrite_chars)
+
+
+             #Exit recognition if any of the transcribed phrases could be
+            # one of our keywords.
+            if re.search(r'\b(exit|quit)\b', transcript, re.I):
+                print('Exiting..')
+                break
+
+            num_chars_printed = 0
+
+def listenVoice():
+
+    language_code = 'es-ES'  # a BCP-47 language tag
+
+    client = speech.SpeechClient()
+    config = types.RecognitionConfig(
+        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=RATE,
+        language_code=language_code)
+    streaming_config = types.StreamingRecognitionConfig(
+        config=config,
+        interim_results=True)
+
+    with sr.MicrophoneStream(RATE, CHUNK) as stream:
+        audio_generator = stream.generator()
+        requests = (types.StreamingRecognizeRequest(audio_content=content)
+                    for content in audio_generator)
+
+        responses = client.streaming_recognize(streaming_config, requests)
+
+        # Now, put the transcription responses to use.
+        listen_print_loop(responses)
 
 
 class BallInMazeDemo(ShowBase):
@@ -369,7 +484,7 @@ class BallInMazeDemo(ShowBase):
         # Distància minima per passar al següent punt
         self.minDist = 20
         # Pas per saltar punts del path
-        self.pas = 20
+        self.pas = 25
 
         base.setBackgroundColor(0.2, 0.2, 0.2)
 
@@ -516,6 +631,8 @@ class BallInMazeDemo(ShowBase):
                                               self.digitizer.startPos[1], self.digitizer.startPos[0],
                                               self.digitizer.endPos[1], self.digitizer.endPos[0])
 
+            self.pathFollowed = np.zeros(self.pm.shape)
+
             check_result = cv2.addWeighted(self.digitizer.source_img_g.astype('uint8'), 0.5,
                                            np.clip(self.pm * 255, 0, 255).astype('uint8'), 0.5, 1)
             cv2.imshow("laberint resolt sobre original", check_result)
@@ -534,19 +651,25 @@ class BallInMazeDemo(ShowBase):
             img = np.asarray(screenshot.getRamImage(), dtype=np.uint8).copy()
             img = img.reshape((screenshot.getYSize(), screenshot.getXSize(), 4))
             img = img[::-1]
+            img = img[:,:,:3]
         #self.camera2_buffer.saveScreenshot("ts.jpg")
         #img = cv2.imread("ts.jpg", 1)
 
         #img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
-        pos = self.digitizer.get_ball_pos(img)
+        pos = self.digitizer.get_ball_pos(img).astype(np.int32)
+
+        self.pathFollowed[pos[0] - 1 : pos[0] + 2, pos[1] - 1 : pos[1] + 2] = 1
 
         img[self.pm == 1] = 0
         img[self.pm == 1, 2] = 255
 
+        img[self.pathFollowed == 1] = 0
+        img[self.pathFollowed == 1, 1] = 255
+
         #print(pos)
 
-        #img = cv2.circle(img, (int(pos[1]), int(pos[0])), 10, (0,0,0), -1)
+        img[pos[0] - 2 : pos[0] + 3, pos[1] - 2 : pos[1] + 3] = 0
 
         cv2.imshow('img', img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -648,10 +771,16 @@ class BallInMazeDemo(ShowBase):
             dist = math.sqrt((xFinal - ballPos[1])**2 + (yFinal - ballPos[0])**2)
 
             if(dist < self.minDist):
-                if(self.indexPuntActual + self.pas <= len(self.path) - 1):
-                    self.indexPuntActual += self.pas
-                else:
-                    self.indexPuntActual = len(self.path) - 1
+                if(self.indexPuntActual == len(self.path) - 1):
+                    self.pid.p = 0.1
+                    self.pid.d = 0.11
+                    self.pid.pAngle = 0.08
+
+                while(self.aStar.distance((ballPos[0], ballPos[1]), self.path[self.indexPuntActual]) < self.pas):
+                    if(self.indexPuntActual < len(self.path) - 1):
+                        self.indexPuntActual += 1
+                    else:
+                        break
 
             # ball pos (y,x)
             
@@ -781,9 +910,10 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    pass
     #th = threading.Thread(target=listenVoice)
     #th.start()
+    pass
+
 except:
     print("Error: unable to start thread")
 

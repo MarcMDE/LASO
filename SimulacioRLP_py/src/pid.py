@@ -1,8 +1,8 @@
 class pid:
-	def __init__(self, xInit, yInit, p = 0.2, d = 0.2):
+	def __init__(self, xInit, yInit, p = 0.25, d = 0.18):
 		self.p = p
 		self.d = d
-		self.pAngle = 0.1
+		self.pAngle = 0.15
 		self.prevX = xInit
 		self.prevY = yInit
 
