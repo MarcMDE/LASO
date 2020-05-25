@@ -75,7 +75,7 @@ class Digitizer:
         # Mitjançant l'adaptative thresholding podem separar les parets del terra evitant la intromissió de les
         # sombres.
         b = cv2.adaptiveThreshold(self.source_img_g, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                  cv2.THRESH_BINARY, 51, 5)
+                                  cv2.THRESH_BINARY,61, 15)
         #cv2.imshow("Binary", b)
 
         # Les posicións inicial i final estàn señalitzades amb un punt verd i un vermell respectivament.
@@ -92,8 +92,9 @@ class Digitizer:
         startPosY = int(startPos / PI_CAMERA_RES)
         startPosX = startPos % PI_CAMERA_RES
         self.startPos = (startPosX, startPosY)
+        print("START POS: ", self.startPos)
 
-        #i = cv2.circle(cv2.circle(self.source_img, (startPosX, startPosY), 8, (0,0,255)), (endPosX, endPosY), 8, (0, 255, 0))
+        i = cv2.circle(cv2.circle(self.source_img, (startPosX, startPosY), 8, (0,0,255)), (endPosX, endPosY), 8, (0, 255, 0))
         #cv2.imshow("Positions", i)
 
         # Definim que es terra i que es paret segons on es troben els punts inicals i finals
@@ -123,8 +124,8 @@ class Digitizer:
 
         # Filter by Area
         params.filterByArea = True
-        params.minArea = 2000
-        params.maxArea = 2500
+        params.minArea = 1500
+        params.maxArea = 3000
         b_detector = cv2.SimpleBlobDetector_create(params)
 
         h_keypoints = b_detector.detect(self.source_img)
@@ -144,8 +145,8 @@ class Digitizer:
         b[ground] = 0
 
         self.source_mask = b
-
         cv2.imshow("Final mask", self.source_mask*127)
+        #cv2.waitKey()
         #cv2.imwrite("out1.jpg", self.source_mask*127)
 
     def get_ball_pos(self, img):
@@ -160,7 +161,7 @@ class Digitizer:
         # Apliquem el flann matching per trobar la correspondéncia entre els punts del frame actual i els de la
         # imatge de referénca.
         matches = self.flann.knnMatch(des, self.s_des, k=2)
-        ratio_thresh = 0.5
+        ratio_thresh = 0.4
         good_matches = []
         for m, n in matches:
             if m.distance < ratio_thresh * n.distance:

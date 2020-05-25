@@ -260,8 +260,14 @@ class BallInMazeDemo(ShowBase):
 
         self.skybox = loader.loadModel("models/skybox")
         self.skybox.reparentTo(render)
-        self.skybox.setPosHpr(0, 0, 30, 0, -180, 0)
+        self.skybox.setPosHpr(0, 0, 45, 0, -180, 0)
         #self.skybox.setScale(2.54)
+
+        self.taula = loader.loadModel("models/taula")
+        self.taula.reparentTo(render)
+        self.taula.setPosHpr(0, 0, -53.6, 0, 0, 0)
+        self.taula.setScale(1.8)
+
 
         self.laso_box = loader.loadModel("models/laso_box")
         self.laso_box.reparentTo(render)
@@ -270,9 +276,11 @@ class BallInMazeDemo(ShowBase):
         self.laso_ax.reparentTo(self.laso_box)
         self.laso_ax.setPosHpr(0, 0, MAZE_HEIGHT, 0, 0, 0)
 
-        self.maze = loader.loadModel("models/lab4")
-        self.maze.reparentTo(self.laso_ax)
-        self.maze.setPosHpr(0, 0, 0, 0, 0, 0)
+        self.maze_i = CURR_MAZE
+
+        self.maze = loader.loadModel("models/" + MAZES_NAME[self.maze_i])
+        self.maze.reparentTo(render)
+        self.maze.setPosHpr(0, 0, MAZE_HEIGHT, 0, 0, 0)
         #self.maze.setScale(2.54)
 
         # Load custom maze
@@ -474,7 +482,7 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 10
+        self.mazeSpeed = 30
         self.mazeVoiceSpeed = 8
 
         # Set maze max rotation
@@ -515,7 +523,7 @@ class BallInMazeDemo(ShowBase):
         # The maze model also has a locator in it for where to start the ball
         # To access it we use the find command
         #startPos = self.maze.find("**/start").getPos()
-        startPos = (11.5, 11.5, MAZE_HEIGHT + BALL_OFFSET)
+        startPos = (MAZES_START_POS[self.maze_i][0], MAZES_START_POS[self.maze_i][1], MAZE_HEIGHT + BALL_OFFSET)
         self.ballRoot.setPos(startPos)
 
         if not self.ready_to_solve:
@@ -595,7 +603,7 @@ class BallInMazeDemo(ShowBase):
             dt = globalClock.getDt()
             if r != 0 or p != 0:
                 self.maze.setR(self.maze, r * maxVel * dt)
-                self.laso_ax.setP(self.maze, p * maxVel * dt)
+                self.maze.setP(self.maze, p * maxVel * dt)
 
                 # Check bounds
                 if self.maze.getR() > maxRot:
@@ -603,13 +611,22 @@ class BallInMazeDemo(ShowBase):
                 elif self.maze.getR() < -maxRot:
                     self.maze.setR(-maxRot)
 
+                if self.maze.getP() > maxRot:
+                    self.maze.setP(maxRot)
+                elif self.maze.getP() < -maxRot:
+                    self.maze.setP(-maxRot)
+
+                self.laso_ax.setP(self.maze.getP())
+
+                """
                 if self.laso_ax.getP() > maxRot:
                     self.laso_ax.setP(maxRot)
                 elif self.laso_ax.getP() < -maxRot:
                     self.laso_ax.setP(-maxRot)
+                """
 
                 self.maze.setH(0)
-                self.maze.setP(0)
+               #self.maze.setP(0)
                 self.laso_ax.setH(0)
                 self.laso_ax.setR(0)
 
