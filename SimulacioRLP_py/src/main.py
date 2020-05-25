@@ -359,7 +359,7 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 25
+        self.mazeSpeed = 10
         self.mazeVoiceSpeed = 8
 
         # Set maze max rotation
