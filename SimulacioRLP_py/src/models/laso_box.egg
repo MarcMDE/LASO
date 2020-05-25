@@ -4,7 +4,7 @@
   "maya2egg2020 -o laso_box.egg laso_box.mb"
 }
 <Texture> CaixaExternaSG2 {
-  laso_box_tex.jpg
+  laso_box_tex.png
   <Scalar> format { rgb }
   <Scalar> wrapu { repeat }
   <Scalar> wrapv { repeat }

@@ -153,7 +153,7 @@ class BallInMazeDemo(ShowBase):
 
         self.laso_ax = loader.loadModel("models/laso_ax")
         self.laso_ax.reparentTo(self.laso_box)
-        self.laso_ax.setPosHpr(0, 0, 14.2, 0, 0, 0)
+        self.laso_ax.setPosHpr(0, 0, MAZE_HEIGHT, 0, 0, 0)
 
         self.maze = loader.loadModel("models/lab4")
         self.maze.reparentTo(self.laso_ax)
@@ -322,7 +322,7 @@ class BallInMazeDemo(ShowBase):
         self.light.node().setAttenuation((1, 0, 1))
         #self.light.node().showFrustum()
         self.light.node().getLens().setFov(48)
-        self.light.node().getLens().setNearFar(5, 99)
+        self.light.node().getLens().setNearFar(5, 500)
         #self.light.node().setColor((100000, 100000, 100000, 1))
         self.light.node().setColor((self.lightColor, self.lightColor, self.lightColor, 1))
         self.light.setPos(0, 0, 100)
@@ -359,7 +359,7 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 30
+        self.mazeSpeed = 25
         self.mazeVoiceSpeed = 8
 
         # Set maze max rotation
@@ -400,7 +400,7 @@ class BallInMazeDemo(ShowBase):
         # The maze model also has a locator in it for where to start the ball
         # To access it we use the find command
         #startPos = self.maze.find("**/start").getPos()
-        startPos = (11.5, 11.5, 3)
+        startPos = (11.5, 11.5, MAZE_HEIGHT + BALL_OFFSET)
         self.ballRoot.setPos(startPos)
 
         if not self.ready_to_solve:
@@ -511,8 +511,8 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.set_src_img(img)
             self.digitizer.digitize_source()
             print("solve!!")
-            """
-            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 10,
+
+            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 20,
                                               self.digitizer.startPos[1], self.digitizer.startPos[0],
                                               self.digitizer.endPos[1], self.digitizer.endPos[0])
 
@@ -524,8 +524,6 @@ class BallInMazeDemo(ShowBase):
             self.ballRoot.show()
             # cv2.imshow('img', img)
             # cv2.waitKey(0)
-            """
-            self.ready_to_solve = True
 
     def get_ball_position(self):
         # PI CAMERA PHOTO
@@ -638,7 +636,7 @@ class BallInMazeDemo(ShowBase):
                 self.maze.setR(mpos.getX() * 10)
             """
 
-            """
+
             ballPos = self.get_ball_position()
             #print("BALL POS: ", ballPos)
 
@@ -654,7 +652,7 @@ class BallInMazeDemo(ShowBase):
                     self.indexPuntActual += self.pas
                 else:
                     self.indexPuntActual = len(self.path) - 1
-            """
+
             # ball pos (y,x)
             
             #print("END POS: ", self.digitizer.endPos)
@@ -672,14 +670,15 @@ class BallInMazeDemo(ShowBase):
 
 
                 #print(ballPos)
-                """
+
                 if ballPos is not None:
 
                     p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
                         xFinal, yFinal,
                         self.maze.getP(), self.maze.getR(), dt)
                     #print(p_rotation, r_rotation)
-                """
+
+
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
             elif key_down(KeyboardButton.down()):
