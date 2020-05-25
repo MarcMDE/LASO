@@ -271,8 +271,8 @@ class BallInMazeDemo(ShowBase):
         self.laso_ax.setPosHpr(0, 0, MAZE_HEIGHT, 0, 0, 0)
 
         self.maze = loader.loadModel("models/lab4")
-        self.maze.reparentTo(self.laso_ax)
-        self.maze.setPosHpr(0, 0, 0, 0, 0, 0)
+        self.maze.reparentTo(render)
+        self.maze.setPosHpr(0, 0, MAZE_HEIGHT, 0, 0, 0)
         #self.maze.setScale(2.54)
 
         # Load custom maze
@@ -482,7 +482,7 @@ class BallInMazeDemo(ShowBase):
         self.mazeVoiceMaxRotation = 10
 
         # Distància minima per passar al següent punt
-        self.minDist = 20
+        self.minDist = 15
         # Pas per saltar punts del path
         self.pas = 25
 
@@ -596,6 +596,7 @@ class BallInMazeDemo(ShowBase):
             if r != 0 or p != 0:
                 self.maze.setR(self.maze, r * maxVel * dt)
                 self.laso_ax.setP(self.maze, p * maxVel * dt)
+                self.maze.setP(self.maze, p * maxVel * dt)
 
                 # Check bounds
                 if self.maze.getR() > maxRot:
@@ -609,7 +610,7 @@ class BallInMazeDemo(ShowBase):
                     self.laso_ax.setP(-maxRot)
 
                 self.maze.setH(0)
-                self.maze.setP(0)
+                #self.maze.setP(0)
                 self.laso_ax.setH(0)
                 self.laso_ax.setR(0)
 
@@ -670,6 +671,10 @@ class BallInMazeDemo(ShowBase):
         #print(pos)
 
         img[pos[0] - 2 : pos[0] + 3, pos[1] - 2 : pos[1] + 3] = 0
+
+        posActual = self.path[self.indexPuntActual]
+
+        img[posActual[0] - 2 : posActual[0] + 3, posActual[1] - 2 : posActual[1] + 3] = 255
 
         cv2.imshow('img', img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -772,9 +777,7 @@ class BallInMazeDemo(ShowBase):
 
             if(dist < self.minDist):
                 if(self.indexPuntActual == len(self.path) - 1):
-                    self.pid.p = 0.1
-                    self.pid.d = 0.11
-                    self.pid.pAngle = 0.08
+                    print("SOLVED!!", end = "")
 
                 while(self.aStar.distance((ballPos[0], ballPos[1]), self.path[self.indexPuntActual]) < self.pas):
                     if(self.indexPuntActual < len(self.path) - 1):
