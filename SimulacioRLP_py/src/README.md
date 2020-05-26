@@ -7,7 +7,7 @@ Marc Montagut Llauradó - 1462234
 Aleix Torres Rodriguez - 1493910
 Aleix Saus Mestres - 1458353
 
-# REQUERIMENTS ----------------------------------------------
+# REQUERIMENTS ---------------------------------------------
 
 Es troben també al fitxer requirements.txt per instalar amb pip install
 
