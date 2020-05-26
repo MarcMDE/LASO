@@ -55,7 +55,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-91d7b22ba751.jso
 import re
 import sys
 
-#from google.cloud import storage
+from google.cloud import storage
 from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
@@ -240,8 +240,14 @@ class BallInMazeDemo(ShowBase):
 
         # Place the camera
         camera.setPosHpr(0, 0, 80, 0, -90, 0)
+
+        base.trackball.node().set_pos(0, 200, 0)
+        base.trackball.node().set_hpr(0, 60, 0)
+
         #camera.setPosHpr(0, 0, 25, 0, -90, 0)
         #base.camLens.setNearFar(200, 600)
+
+        #self.enableMouse()
 
         # Load the maze and place it in the scene
         #self.maze = loader.loadModel("models/maze")
@@ -626,7 +632,7 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.digitize_source()
             print("solve!!")
 
-            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 10,
+            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 20,
                                               self.digitizer.startPos[1], self.digitizer.startPos[0],
                                               self.digitizer.endPos[1], self.digitizer.endPos[0])
 
@@ -869,6 +875,10 @@ class BallInMazeDemo(ShowBase):
         elif key_down(KeyboardButton.ascii_key('9')):
             self.alightColor -= 1 * dt
             self.ambientL.node().setColor((self.alightColor, self.alightColor, self.alightColor, 1))
+
+        if key_down(KeyboardButton.ascii_key('r')):
+            base.trackball.node().set_pos(0, 200, 0)
+            base.trackball.node().set_hpr(0, 60, 0)
 
         return Task.cont       # Continue the task indefinitely
 
