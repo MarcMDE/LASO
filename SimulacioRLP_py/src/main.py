@@ -1,16 +1,5 @@
 from __future__ import division
 
-#!/usr/bin/env python
-
-# Author: Shao Zhang, Phil Saltzman
-# Last Updated: 2015-03-13
-#
-# This tutorial shows how to detect and respond to collisions. It uses solids
-# create in code and the egg files, how to set up collision masks, a traverser,
-# and a handler, how to detect collisions, and how to dispatch function based
-# on the collisions. All of this is put together to simulate a labyrinth-style
-# game
-
 #from direct.showbase.ShowBase import ShowBase
 from panda3d.core import WindowProperties
 from panda3d.core import Texture
@@ -66,7 +55,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-91d7b22ba751.jso
 import re
 import sys
 
-from google.cloud import storage
+#from google.cloud import storage
 from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
@@ -259,17 +248,26 @@ class BallInMazeDemo(ShowBase):
 
         self.skybox = loader.loadModel("models/skybox")
         self.skybox.reparentTo(render)
-        self.skybox.setPosHpr(0, 0, 30, 0, -180, 0)
+        self.skybox.setPosHpr(0, 0, 45+ MAZE_OFFSET, 0, -180, 0)
         #self.skybox.setScale(2.54)
+
+        self.taula = loader.loadModel("models/taula")
+        self.taula.reparentTo(render)
+        self.taula.setPosHpr(0, 0, -53.6 + MAZE_OFFSET, 0, 0, 0)
+        self.taula.setScale(1.8)
+
 
         self.laso_box = loader.loadModel("models/laso_box")
         self.laso_box.reparentTo(render)
+        self.laso_box.setPosHpr(0, 0, MAZE_OFFSET, 0, 0, 0)
 
         self.laso_ax = loader.loadModel("models/laso_ax")
         self.laso_ax.reparentTo(self.laso_box)
         self.laso_ax.setPosHpr(0, 0, MAZE_HEIGHT, 0, 0, 0)
 
-        self.maze = loader.loadModel("models/lab4")
+        self.maze_i = CURR_MAZE
+
+        self.maze = loader.loadModel("models/" + MAZES_NAME[self.maze_i])
         self.maze.reparentTo(render)
         self.maze.setPosHpr(0, 0, MAZE_HEIGHT, 0, 0, 0)
         #self.maze.setScale(2.54)
@@ -481,7 +479,7 @@ class BallInMazeDemo(ShowBase):
         self.mazeVoiceMaxRotation = 10
 
         # Distància minima per passar al següent punt
-        self.minDist = 15
+        self.minDist = 25
         # Pas per saltar punts del path
         self.pas = 25
 
@@ -514,7 +512,7 @@ class BallInMazeDemo(ShowBase):
         # The maze model also has a locator in it for where to start the ball
         # To access it we use the find command
         #startPos = self.maze.find("**/start").getPos()
-        startPos = (11.5, 11.5, MAZE_HEIGHT + BALL_OFFSET)
+        startPos = (MAZES_START_POS[self.maze_i][0], MAZES_START_POS[self.maze_i][1], MAZE_HEIGHT + BALL_OFFSET)
         self.ballRoot.setPos(startPos)
 
         if not self.ready_to_solve:
@@ -578,8 +576,7 @@ class BallInMazeDemo(ShowBase):
             # Since we have a collision, the ball is already a little bit buried in
             # the wall. This calculates a vector needed to move it so that it is
             # exactly touching the wall
-            disp = (colEntry.getSurfacePoint(render) -
-                    colEntry.getInteriorPoint(render))
+            disp = (colEntry.getSurfacePoint(render) - colEntry.getInteriorPoint(render))
             newPos = self.ballRoot.getPos() + disp
             self.ballRoot.setPos(newPos)
 
@@ -594,7 +591,7 @@ class BallInMazeDemo(ShowBase):
             dt = globalClock.getDt()
             if r != 0 or p != 0:
                 self.maze.setR(self.maze, r * maxVel * dt)
-                self.laso_ax.setP(self.maze, p * maxVel * dt)
+
                 self.maze.setP(self.maze, p * maxVel * dt)
 
                 # Check bounds
@@ -608,13 +605,10 @@ class BallInMazeDemo(ShowBase):
                 elif self.maze.getP() < -maxRot:
                     self.maze.setP(-maxRot)
 
-                if self.laso_ax.getP() > maxRot:
-                    self.laso_ax.setP(maxRot)
-                elif self.laso_ax.getP() < -maxRot:
-                    self.laso_ax.setP(-maxRot)
+                self.laso_ax.setP(self.maze.getP())
+
 
                 self.maze.setH(0)
-                #self.maze.setP(0)
                 self.laso_ax.setH(0)
                 self.laso_ax.setR(0)
 
@@ -632,7 +626,7 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.digitize_source()
             print("solve!!")
 
-            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 20,
+            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 10,
                                               self.digitizer.startPos[1], self.digitizer.startPos[0],
                                               self.digitizer.endPos[1], self.digitizer.endPos[0])
 
@@ -814,7 +808,6 @@ class BallInMazeDemo(ShowBase):
                         self.maze.getP(), self.maze.getR(), dt)
                     #print(p_rotation, r_rotation)
 
-
             if key_down(KeyboardButton.up()):
                 p_rotation = -1
             elif key_down(KeyboardButton.down()):
@@ -920,9 +913,11 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
+    pass
+    """
     th = threading.Thread(target=listenVoice, daemon = True)
     th.start()
-
+    """
 except:
     print("Error: unable to start thread")
 

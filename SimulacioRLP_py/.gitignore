@@ -2,4 +2,5 @@
 /.idea/*
 */__pycache__/*
 /src/ts.jpg
-robotica-272015-91d7b22ba751.json
+*.json
+
