@@ -1,16 +1,5 @@
 from __future__ import division
 
-#!/usr/bin/env python
-
-# Author: Shao Zhang, Phil Saltzman
-# Last Updated: 2015-03-13
-#
-# This tutorial shows how to detect and respond to collisions. It uses solids
-# create in code and the egg files, how to set up collision masks, a traverser,
-# and a handler, how to detect collisions, and how to dispatch function based
-# on the collisions. All of this is put together to simulate a labyrinth-style
-# game
-
 #from direct.showbase.ShowBase import ShowBase
 from panda3d.core import WindowProperties
 from panda3d.core import Texture
