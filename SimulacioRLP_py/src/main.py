@@ -632,9 +632,18 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.digitize_source()
             print("solve!!")
 
-            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 20,
-                                              self.digitizer.startPos[1], self.digitizer.startPos[0],
-                                              self.digitizer.endPos[1], self.digitizer.endPos[0])
+            self.pm = False
+
+            radi = 40
+            m_seg = 20
+
+            while self.pm == False:
+                self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, radi, m_seg,
+                                                  self.digitizer.startPos[1], self.digitizer.startPos[0],
+                                                  self.digitizer.endPos[1], self.digitizer.endPos[0])
+                radi -= 1
+                m_seg -= 1
+
 
             self.pathFollowed = np.zeros(self.pm.shape)
 

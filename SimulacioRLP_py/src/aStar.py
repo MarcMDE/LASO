@@ -90,7 +90,7 @@ class aStar:
 
 		if(lab[x0][y0] != 0 or lab[xf][yf] != 0):
 			print("Posició inici o final no valida")
-			return
+			return False
 
 		expand_p = -np.ones(lab.shape).astype(np.int)
 		
@@ -109,6 +109,8 @@ class aStar:
 			#print(punt_actual)
 			if(punt_actual[0] == end_p):
 				break
+			if(len(point_list) == 0):
+				return False
 			neighs = self.get_neighbours(punt_actual, (xf, yf), lab, expand_p, width, height)
 			for n in neighs:
 				expand_p[n[0][0]][n[0][1]] = n[1]
