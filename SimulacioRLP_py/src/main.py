@@ -55,12 +55,13 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-91d7b22ba751.jso
 import re
 import sys
 
-"""
+
 #from google.cloud import storage
+
+from google.cloud import storage
 from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
-"""
 
 # Audio recording parameters
 RATE = 16000
@@ -242,8 +243,14 @@ class BallInMazeDemo(ShowBase):
 
         # Place the camera
         camera.setPosHpr(0, 0, 80, 0, -90, 0)
+
+        base.trackball.node().set_pos(0, 200, 0)
+        base.trackball.node().set_hpr(0, 60, 0)
+
         #camera.setPosHpr(0, 0, 25, 0, -90, 0)
         #base.camLens.setNearFar(200, 600)
+
+        #self.enableMouse()
 
         # Load the maze and place it in the scene
         #self.maze = loader.loadModel("models/maze")
@@ -875,6 +882,10 @@ class BallInMazeDemo(ShowBase):
             self.alightColor -= 1 * dt
             self.ambientL.node().setColor((self.alightColor, self.alightColor, self.alightColor, 1))
 
+        if key_down(KeyboardButton.ascii_key('r')):
+            base.trackball.node().set_pos(0, 200, 0)
+            base.trackball.node().set_hpr(0, 60, 0)
+
         return Task.cont       # Continue the task indefinitely
 
     # If the ball hits a hole trigger, then it should fall in the hole.
@@ -918,10 +929,10 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    """
+
     th = threading.Thread(target=listenVoice, daemon = True)
     th.start()
-    """
+
 except:
     print("Error: unable to start thread")
 
