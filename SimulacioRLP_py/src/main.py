@@ -65,12 +65,11 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-91d7b22ba751.jso
 
 import re
 import sys
-"""
+
 from google.cloud import storage
 from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
-"""
 
 # Audio recording parameters
 RATE = 16000
@@ -478,7 +477,7 @@ class BallInMazeDemo(ShowBase):
         self.mazeVoiceSpeed = 8
 
         # Set maze max rotation
-        self.mazeMaxRotation = 20
+        self.mazeMaxRotation = 10
         self.mazeVoiceMaxRotation = 10
 
         # Distància minima per passar al següent punt
@@ -603,6 +602,11 @@ class BallInMazeDemo(ShowBase):
                     self.maze.setR(maxRot)
                 elif self.maze.getR() < -maxRot:
                     self.maze.setR(-maxRot)
+
+                if self.maze.getP() > maxRot:
+                    self.maze.setP(maxRot)
+                elif self.maze.getP() < -maxRot:
+                    self.maze.setP(-maxRot)
 
                 if self.laso_ax.getP() > maxRot:
                     self.laso_ax.setP(maxRot)
@@ -884,6 +888,9 @@ class BallInMazeDemo(ShowBase):
         action = "start"
         toPos = entry.getInteriorPoint(render)
         taskMgr.remove('rollTask')  # Stop the maze task
+        self.pathFollowed = np.zeros(self.pm.shape)
+        self.maze.setP(0)
+        self.maze.setR(0)
 
         # Move the ball into the hole over a short sequence of time. Then wait a
         # second and call start to reset the game
@@ -913,9 +920,8 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    #th = threading.Thread(target=listenVoice)
-    #th.start()
-    pass
+    th = threading.Thread(target=listenVoice, daemon = True)
+    th.start()
 
 except:
     print("Error: unable to start thread")
