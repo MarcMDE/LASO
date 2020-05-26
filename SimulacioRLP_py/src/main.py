@@ -635,17 +635,20 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.digitize_source()
             print("solve!!")
 
-            self.pm = False
+            trobat = False
 
-            radi = 40
-            m_seg = 20
+            radi = 50
+            m_seg = 30
 
-            while self.pm == False:
-                self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, radi, m_seg,
-                                                  self.digitizer.startPos[1], self.digitizer.startPos[0],
-                                                  self.digitizer.endPos[1], self.digitizer.endPos[0])
-                radi -= 1
-                m_seg -= 1
+            while trobat == False:
+                trobat, self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask.copy(), radi, int(m_seg), 
+                                                self.digitizer.startPos[1], self.digitizer.startPos[0],
+                                                self.digitizer.endPos[1], self.digitizer.endPos[0])
+                radi = max(radi - 1, 0)
+                m_seg = max(m_seg - 0.5, 0)
+                print(radi, m_seg)
+
+            #print(self.pm)
 
             self.pathFollowed = np.zeros(self.pm.shape)
 

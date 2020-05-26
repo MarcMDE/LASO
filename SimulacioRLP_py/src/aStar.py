@@ -90,7 +90,7 @@ class aStar:
 
 		if(lab[x0][y0] != 0 or lab[xf][yf] != 0):
 			print("Posició inici o final no valida")
-			return False
+			return False, None, None
 
 		expand_p = -np.ones(lab.shape).astype(np.int)
 		
@@ -109,8 +109,7 @@ class aStar:
 			#print(punt_actual)
 			if(punt_actual[0] == end_p):
 				break
-			if(len(point_list) == 0):
-				return False
+			
 			neighs = self.get_neighbours(punt_actual, (xf, yf), lab, expand_p, width, height)
 			for n in neighs:
 				expand_p[n[0][0]][n[0][1]] = n[1]
@@ -120,6 +119,8 @@ class aStar:
 			self.insert_ordered(point_list, neighs)
 			#print(point_list)
 			#input()
+			if(len(point_list) == 0):
+				return False, None, None
 
 		# -------- Recuperar cami ------------------
 
@@ -165,5 +166,5 @@ class aStar:
 
 		#print("Temps total: ", time.time() - start_time)
 
-		return path_matrix, path
+		return True, path_matrix, path
 
