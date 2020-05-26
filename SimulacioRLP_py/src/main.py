@@ -637,8 +637,8 @@ class BallInMazeDemo(ShowBase):
 
             trobat = False
 
-            radi = 50
-            m_seg = 30
+            radi = 30
+            m_seg = 20
 
             while trobat == False:
                 trobat, self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask.copy(), radi, int(m_seg), 

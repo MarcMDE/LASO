@@ -17,11 +17,11 @@ class Digitizer:
         self.s_des = None
 
         # Utlitzem l'algorisme ORB per a obtenir els descriptors ja que es un dels més rapids.
-        self.orb = cv2.ORB_create(edgeThreshold=81) #131
+        self.orb = cv2.ORB_create(edgeThreshold=101)
         # Utilitzem el FAST per a la feature detection.
-
         self.thresh_inicial = 12
         self.fast = cv2.FastFeatureDetector_create(self.thresh_inicial, True, 2)
+
         """
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
         """
