@@ -19,7 +19,8 @@ class Digitizer:
         # Utlitzem l'algorisme ORB per a obtenir els descriptors ja que es un dels més rapids.
         self.orb = cv2.ORB_create(edgeThreshold=101)
         # Utilitzem el FAST per a la feature detection.
-        self.fast = cv2.FastFeatureDetector_create(12, True, 2)
+        self.thresh_inicial = 12
+        self.fast = cv2.FastFeatureDetector_create(self.thresh_inicial, True, 2)
 
         """
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
@@ -151,22 +152,32 @@ class Digitizer:
         #cv2.imwrite("out1.jpg", self.source_mask*127)
 
     def get_ball_pos(self, img):
-        img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        trobat = False
+        th = self.thresh_inicial
+        while not trobat:
+            img_g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        # Obtenim punts i descriptors del frame
-        kp = self.fast.detect(img_g, None)
-        kp, des = self.orb.compute(img_g, kp)
-        img_kp = cv2.drawKeypoints(img_g, kp, None, color=(255, 0, 0))
-        #cv2.imshow("Frame KP", img_kp)
+            # Obtenim punts i descriptors del frame
+            kp = self.fast.detect(img_g, None)
+            kp, des = self.orb.compute(img_g, kp)
+            img_kp = cv2.drawKeypoints(img_g, kp, None, color=(255, 0, 0))
+            #cv2.imshow("Frame KP", img_kp)
 
-        # Apliquem el flann matching per trobar la correspondéncia entre els punts del frame actual i els de la
-        # imatge de referénca.
-        matches = self.flann.knnMatch(des, self.s_des, k=2)
-        ratio_thresh = 0.45
-        good_matches = []
-        for m, n in matches:
-            if m.distance < ratio_thresh * n.distance:
-                good_matches.append(m)
+            # Apliquem el flann matching per trobar la correspondéncia entre els punts del frame actual i els de la
+            # imatge de referénca.
+            matches = self.flann.knnMatch(des, self.s_des, k=2)
+            ratio_thresh = 0.45
+            good_matches = []
+
+            try:
+                for m, n in matches:
+                    if m.distance < ratio_thresh * n.distance:
+                        good_matches.append(m)
+                trobat = True
+
+            except:
+                th -= 1
+                self.fast = cv2.FastFeatureDetector_create(th, True, 2)
 
         # Ens assegurem de tenir 4 punts com a mínim.
         if len(good_matches) < 4:
