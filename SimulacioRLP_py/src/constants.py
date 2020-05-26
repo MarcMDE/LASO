@@ -9,4 +9,5 @@ BALL_OFFSET = 2
 
 CURR_MAZE = 1
 MAZES_NAME = ["lab4", "labv3"]
-MAZES_START_POS = [(11.5, 11.5), (5.5, -10.5)]
+MAZES_START_POS = [(11.5, 11.5), (11.5, -11.5)]
+MAZE_OFFSET = 2

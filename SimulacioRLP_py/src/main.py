@@ -260,17 +260,18 @@ class BallInMazeDemo(ShowBase):
 
         self.skybox = loader.loadModel("models/skybox")
         self.skybox.reparentTo(render)
-        self.skybox.setPosHpr(0, 0, 45, 0, -180, 0)
+        self.skybox.setPosHpr(0, 0, 45+ MAZE_OFFSET, 0, -180, 0)
         #self.skybox.setScale(2.54)
 
         self.taula = loader.loadModel("models/taula")
         self.taula.reparentTo(render)
-        self.taula.setPosHpr(0, 0, -53.6, 0, 0, 0)
+        self.taula.setPosHpr(0, 0, -53.6 + MAZE_OFFSET, 0, 0, 0)
         self.taula.setScale(1.8)
 
 
         self.laso_box = loader.loadModel("models/laso_box")
         self.laso_box.reparentTo(render)
+        self.laso_box.setPosHpr(0, 0, MAZE_OFFSET, 0, 0, 0)
 
         self.laso_ax = loader.loadModel("models/laso_ax")
         self.laso_ax.reparentTo(self.laso_box)
@@ -482,7 +483,7 @@ class BallInMazeDemo(ShowBase):
         #self.maze2.setMaterial(m,1)
 
         # Set maze rotation speed
-        self.mazeSpeed = 30
+        self.mazeSpeed = 10
         self.mazeVoiceSpeed = 8
 
         # Set maze max rotation
@@ -490,7 +491,7 @@ class BallInMazeDemo(ShowBase):
         self.mazeVoiceMaxRotation = 10
 
         # Distància minima per passar al següent punt
-        self.minDist = 20
+        self.minDist = 25
         # Pas per saltar punts del path
         self.pas = 25
 
@@ -587,8 +588,7 @@ class BallInMazeDemo(ShowBase):
             # Since we have a collision, the ball is already a little bit buried in
             # the wall. This calculates a vector needed to move it so that it is
             # exactly touching the wall
-            disp = (colEntry.getSurfacePoint(render) -
-                    colEntry.getInteriorPoint(render))
+            disp = (colEntry.getSurfacePoint(render) - colEntry.getInteriorPoint(render))
             newPos = self.ballRoot.getPos() + disp
             self.ballRoot.setPos(newPos)
 
@@ -603,6 +603,7 @@ class BallInMazeDemo(ShowBase):
             dt = globalClock.getDt()
             if r != 0 or p != 0:
                 self.maze.setR(self.maze, r * maxVel * dt)
+                self.laso_ax.setP(self.maze, p * maxVel * dt)
                 self.maze.setP(self.maze, p * maxVel * dt)
 
                 # Check bounds
@@ -626,7 +627,6 @@ class BallInMazeDemo(ShowBase):
                 """
 
                 self.maze.setH(0)
-               #self.maze.setP(0)
                 self.laso_ax.setH(0)
                 self.laso_ax.setR(0)
 
@@ -687,6 +687,10 @@ class BallInMazeDemo(ShowBase):
         #print(pos)
 
         img[pos[0] - 2 : pos[0] + 3, pos[1] - 2 : pos[1] + 3] = 0
+
+        posActual = self.path[self.indexPuntActual]
+
+        img[posActual[0] - 2 : posActual[0] + 3, posActual[1] - 2 : posActual[1] + 3] = 255
 
         cv2.imshow('img', img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -789,9 +793,7 @@ class BallInMazeDemo(ShowBase):
 
             if(dist < self.minDist):
                 if(self.indexPuntActual == len(self.path) - 1):
-                    self.pid.p = 0.1
-                    self.pid.d = 0.11
-                    self.pid.pAngle = 0.08
+                    print("SOLVED!!", end = "")
 
                 while(self.aStar.distance((ballPos[0], ballPos[1]), self.path[self.indexPuntActual]) < self.pas):
                     if(self.indexPuntActual < len(self.path) - 1):
@@ -816,16 +818,13 @@ class BallInMazeDemo(ShowBase):
 
 
                 #print(ballPos)
-                """
+
                 if ballPos is not None:
 
                     p_rotation, r_rotation = self.pid.getPR(ballPos[1], ballPos[0],
                         xFinal, yFinal,
                         self.maze.getP(), self.maze.getR(), dt)
                     #print(p_rotation, r_rotation)
-                """
-
-
 
             if key_down(KeyboardButton.up()):
                 p_rotation = -1

@@ -17,9 +17,9 @@ class Digitizer:
         self.s_des = None
 
         # Utlitzem l'algorisme ORB per a obtenir els descriptors ja que es un dels més rapids.
-        self.orb = cv2.ORB_create(edgeThreshold=131)
+        self.orb = cv2.ORB_create(edgeThreshold=101)
         # Utilitzem el FAST per a la feature detection.
-        self.fast = cv2.FastFeatureDetector_create(9, True, 2)
+        self.fast = cv2.FastFeatureDetector_create(12, True, 2)
 
         """
         self.bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
@@ -31,7 +31,7 @@ class Digitizer:
                             multi_probe_level=2)
 
         search_params = {}
-        search_params = dict(checks=100)
+        #search_params = dict(checks=100)
         # Utilitzem un "flann based matcher" per posar en correspondéncia els punts.
         self.flann = cv2.FlannBasedMatcher(index_params, search_params)
 
@@ -148,7 +148,6 @@ class Digitizer:
 
         self.source_mask = b
         cv2.imshow("Final mask", self.source_mask*127)
-        cv2.waitKey()
         #cv2.imwrite("out1.jpg", self.source_mask*127)
 
     def get_ball_pos(self, img):
@@ -163,7 +162,7 @@ class Digitizer:
         # Apliquem el flann matching per trobar la correspondéncia entre els punts del frame actual i els de la
         # imatge de referénca.
         matches = self.flann.knnMatch(des, self.s_des, k=2)
-        ratio_thresh = 0.6
+        ratio_thresh = 0.45
         good_matches = []
         for m, n in matches:
             if m.distance < ratio_thresh * n.distance:
