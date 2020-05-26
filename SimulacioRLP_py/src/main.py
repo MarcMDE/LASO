@@ -55,10 +55,12 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "robotica-272015-91d7b22ba751.jso
 import re
 import sys
 
+"""
 #from google.cloud import storage
 from google.cloud import speech
 from google.cloud.speech import enums
 from google.cloud.speech import types
+"""
 
 # Audio recording parameters
 RATE = 16000
@@ -248,18 +250,18 @@ class BallInMazeDemo(ShowBase):
 
         self.skybox = loader.loadModel("models/skybox")
         self.skybox.reparentTo(render)
-        self.skybox.setPosHpr(0, 0, 45+ MAZE_OFFSET, 0, -180, 0)
+        self.skybox.setPosHpr(0, 0, 45+ MAZE_OFFSETS[CURR_MAZE], 0, -180, 0)
         #self.skybox.setScale(2.54)
 
         self.taula = loader.loadModel("models/taula")
         self.taula.reparentTo(render)
-        self.taula.setPosHpr(0, 0, -53.6 + MAZE_OFFSET, 0, 0, 0)
+        self.taula.setPosHpr(0, 0, -53.6 + MAZE_OFFSETS[CURR_MAZE], 0, 0, 0)
         self.taula.setScale(1.8)
 
 
         self.laso_box = loader.loadModel("models/laso_box")
         self.laso_box.reparentTo(render)
-        self.laso_box.setPosHpr(0, 0, MAZE_OFFSET, 0, 0, 0)
+        self.laso_box.setPosHpr(0, 0, MAZE_OFFSETS[CURR_MAZE], 0, 0, 0)
 
         self.laso_ax = loader.loadModel("models/laso_ax")
         self.laso_ax.reparentTo(self.laso_box)
@@ -626,7 +628,7 @@ class BallInMazeDemo(ShowBase):
             self.digitizer.digitize_source()
             print("solve!!")
 
-            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 30, 10,
+            self.pm, self.path = self.aStar.a_star(self.digitizer.source_mask, 25, 10,
                                               self.digitizer.startPos[1], self.digitizer.startPos[0],
                                               self.digitizer.endPos[1], self.digitizer.endPos[0])
 
@@ -656,32 +658,35 @@ class BallInMazeDemo(ShowBase):
 
         #img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
-        pos = self.digitizer.get_ball_pos(img).astype(np.int32)
+        pos = self.digitizer.get_ball_pos(img)
 
-        self.pathFollowed[pos[0] - 1 : pos[0] + 2, pos[1] - 1 : pos[1] + 2] = 1
+        if pos is not False:
+            pos = pos.astype(np.int32)
 
-        img[self.pm == 1] = 0
-        img[self.pm == 1, 2] = 255
+            self.pathFollowed[pos[0] - 1 : pos[0] + 2, pos[1] - 1 : pos[1] + 2] = 1
 
-        img[self.pathFollowed == 1] = 0
-        img[self.pathFollowed == 1, 1] = 255
+            img[self.pm == 1] = 0
+            img[self.pm == 1, 2] = 255
 
-        #print(pos)
+            img[self.pathFollowed == 1] = 0
+            img[self.pathFollowed == 1, 1] = 255
 
-        img[pos[0] - 2 : pos[0] + 3, pos[1] - 2 : pos[1] + 3] = 0
+            #print(pos)
 
-        posActual = self.path[self.indexPuntActual]
+            img[pos[0] - 2 : pos[0] + 3, pos[1] - 2 : pos[1] + 3] = 0
 
-        img[posActual[0] - 2 : posActual[0] + 3, posActual[1] - 2 : posActual[1] + 3] = 255
+            posActual = self.path[self.indexPuntActual]
 
-        cv2.imshow('img', img)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-                pass
+            img[posActual[0] - 2 : posActual[0] + 3, posActual[1] - 2 : posActual[1] + 3] = 255
 
-            #if pos is not None:
-                #print("BALL POSITION: ", pos)
-                #check_res = cv2.circle(self.digitizer.source_img, (int(pos[0]), int(pos[1])), 24, (0, 0, 255))
-                #cv2.imshow("BALL POS RES", check_res)
+            cv2.imshow('img', img)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                    pass
+
+                #if pos is not None:
+                    #print("BALL POSITION: ", pos)
+                    #check_res = cv2.circle(self.digitizer.source_img, (int(pos[0]), int(pos[1])), 24, (0, 0, 255))
+                    #cv2.imshow("BALL POS RES", check_res)
         return pos
 
 
@@ -913,9 +918,10 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
+    """
     th = threading.Thread(target=listenVoice, daemon = True)
     th.start()
-
+    """
 except:
     print("Error: unable to start thread")
 
