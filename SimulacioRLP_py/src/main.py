@@ -913,11 +913,9 @@ class BallInMazeDemo(ShowBase):
 demo = BallInMazeDemo()
 
 try:
-    pass
-    """
     th = threading.Thread(target=listenVoice, daemon = True)
     th.start()
-    """
+
 except:
     print("Error: unable to start thread")
 
