@@ -1,13 +1,13 @@
 # PROJECTE RLP CURS 2019 - 2020 -- LASO
 
-# PARTICIPANTS ----------------------------------------------
+# PARTICIPANTS
 * Narcís Nogué Bonet - 1493389
 * Raquel Navarro Ballesteros - 1423208
 * Marc Montagut Llauradó - 1462234
 * Aleix Torres Rodriguez - 1493910
 * Aleix Saus Mestres - 1458353
 
-# REQUERIMENTS ---------------------------------------------
+# REQUERIMENTS
 
 Es troben també al fitxer requirements.txt per instalar amb pip install
 
@@ -42,7 +42,7 @@ Es troben també al fitxer requirements.txt per instalar amb pip install
 * uritemplate==3.0.1
 * urllib3==1.25.9
 
-# COM UTILITZAR --------------------------------------------
+# COM UTILITZAR
 
 Moviment de camera:
 	-Botó dret - Zoom
