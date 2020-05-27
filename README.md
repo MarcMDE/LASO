@@ -1,11 +1,14 @@
 # PROJECTE RLP CURS 2019 - 2020 -- LASO
-
+<img src="https://github.com/MarcMDE/LASO/blob/master/SimulacioRLP_py/src/frame_tests/f0.jpg?raw=true" align="right" width="300" alt="header pic"/>
 # PARTICIPANTS
+
 * Narcís Nogué Bonet - 1493389
 * Raquel Navarro Ballesteros - 1423208
 * Marc Montagut Llauradó - 1462234
 * Aleix Torres Rodriguez - 1493910
 * Aleix Saus Mestres - 1458353
+
+
 
 # REQUERIMENTS
 
