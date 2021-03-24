@@ -23,7 +23,7 @@ pyasn1-modules==0.2.8
 PyAudio==0.2.11
 pytz==2020.1
 requests==2.23.0
-rsa==4.0
+rsa==4.1
 six==1.15.0
 SpeechRecognition==3.8.1
 uritemplate==3.0.1
